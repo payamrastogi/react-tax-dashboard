@@ -1,24 +1,24 @@
 import axios from "axios";
 
-export async function getESICRecordByOwnerRefId(id) {
-  const response = await axios.get(
-    `http://localhost:8002/api/esic/getByOwnerRefId/${id}`
+export function getESICRecordByOwnerRefId(id) {
+  const response = axios.get(
+    `${process.env.REACT_APP_API_URL}/api/esic/getByCustomerRefId/${id}`
   );
-  return response.data[0];
+  return response;
 }
 
-export async function createESICRecord(esicDetails) {
-  const response = await axios.post(
-    "http://localhost:8002/api/esic/add",
+export function createESICRecord(esicDetails) {
+  const response = axios.post(
+    `${process.env.REACT_APP_API_URL}/api/esic/add`,
     esicDetails
   );
-  return response.data;
+  return response;
 }
 
-export async function updateESICRecord(esicDetails) {
-  const response = await axios.put(
-    `http://localhost:8002/api/esic/update/${esicDetails.id}`,
+export function updateESICRecord(esicDetails) {
+  const response = axios.put(
+    `${process.env.REACT_APP_API_URL}/api/esic/update/${esicDetails.id}`,
     esicDetails
   );
-  return response.data;
+  return response;
 }

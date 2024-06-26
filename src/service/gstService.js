@@ -1,24 +1,24 @@
 import axios from "axios";
 
-export async function getGSTRecordByOwnerRefId(id) {
-  const response = await axios.get(
-    `http://localhost:8002/api/gst/getByOwnerRefId/${id}`
+export function getGSTRecordByOwnerRefId(id) {
+  const response = axios.get(
+    `${process.env.REACT_APP_API_URL}/api/gst/getByCustomerRefId/${id}`
   );
-  return response.data[0];
+  return response;
 }
 
-export async function createGSTRecord(gstDetails) {
-  const response = await axios.post(
-    "http://localhost:8002/api/gst/add",
+export function createGSTRecord(gstDetails) {
+  const response = axios.post(
+    `${process.env.REACT_APP_API_URL}/api/gst/add`,
     gstDetails
   );
-  return response.data;
+  return response;
 }
 
-export async function updateGSTRecord(gstDetails) {
-  const response = await axios.put(
-    `http://localhost:8002/api/gst/update/${gstDetails.id}`,
+export function updateGSTRecord(gstDetails) {
+  const response = axios.put(
+    `${process.env.REACT_APP_API_URL}/api/gst/update/${gstDetails.id}`,
     gstDetails
   );
-  return response.data;
+  return response;
 }

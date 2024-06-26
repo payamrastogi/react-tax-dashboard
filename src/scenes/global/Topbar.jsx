@@ -1,5 +1,5 @@
 import { Box, IconButton, useTheme } from "@mui/material";
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { ColorModeContext, tokens } from "../../theme";
 import InputBase from "@mui/material/InputBase";
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
@@ -8,12 +8,16 @@ import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import * as React from 'react';
-import MenuItem from '@mui/material/MenuItem';
-import Menu from '@mui/material/Menu';
+import * as React from "react";
+import MenuItem from "@mui/material/MenuItem";
+import Menu from "@mui/material/Menu";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "./AuthProvider";
 
 const Topbar = () => {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const { isLoggedIn, user, login, logout } = useContext(AuthContext);
 
   const isMenuOpen = Boolean(anchorEl);
   const theme = useTheme();
@@ -24,33 +28,39 @@ const Topbar = () => {
     setAnchorEl(event.currentTarget);
   };
 
-
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const menuId = 'primary-search-account-menu';
+  const handleLogout = () => {
+    setAnchorEl(null);
+    logout();
+    navigate("/login");
+  };
+
+  const menuId = "primary-search-account-menu";
   const renderMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: "top",
+        horizontal: "right",
       }}
       id={menuId}
       keepMounted
       transformOrigin={{
-        vertical: 'top',
-        horizontal: 'right',
+        vertical: "top",
+        horizontal: "right",
       }}
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      {/* <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+      <MenuItem onClick={handleMenuClose}>My account</MenuItem> */}
+      <MenuItem onClick={handleLogout}>Log out</MenuItem>
     </Menu>
   );
-  
+
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
       {/* SEARCH BAR */}
@@ -59,10 +69,10 @@ const Topbar = () => {
         backgroundColor={colors.primary[400]}
         borderRadius="3px"
       >
-        <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
+        {/* <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
         <IconButton type="button" sx={{ p: 1 }}>
           <SearchIcon />
-        </IconButton>
+        </IconButton> */}
       </Box>
 
       {/* ICONS */}

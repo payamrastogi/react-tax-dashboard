@@ -1,51 +1,56 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
-import Team from "./scenes/team";
-import Invoices from "./scenes/invoices";
+import Customers from "./scenes/customers";
 import Contacts from "./scenes/contacts";
-import Bar from "./scenes/bar";
-import Form from "./scenes/form";
-import Line from "./scenes/line";
-import Pie from "./scenes/pie";
-import FAQ from "./scenes/faq";
-import Geography from "./scenes/geography";
+import Form from "./scenes/form/customer";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
-import Calendar from "./scenes/calendar/calendar";
-import IncomeTax from "./scenes/form/IncomeTax";
-import GST from "./scenes/form/GST";
-import MCA from "./scenes/form/MCA";
-import PF from "./scenes/form/PF";
-import ESIC from "./scenes/form/ESIC";
-import TDS from "./scenes/form/TDS";
+import LoginForm from "./scenes/global/LoginForm";
+import PrivateRoute from "./scenes/global/PrivateRoute";
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const location = useLocation();
+
+  // Function to check if the current location matches certain paths
+  const shouldShowSidebar = () => {
+    const { pathname } = location;
+    return !["/login", "/signup"].includes(pathname);
+  };
 
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-          <Sidebar isSidebar={isSidebar} />
+          {shouldShowSidebar() && <Sidebar isSidebar={isSidebar} />}
           <main className="content">
-            <Topbar setIsSidebar={setIsSidebar} />
+            {shouldShowSidebar() && <Topbar setIsSidebar={setIsSidebar} />}
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/team" element={<Team />} />
+              <Route path="/login" element={<LoginForm />} />
+
+              <Route
+                path="/dashboard"
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/customers"
+                element={
+                  <PrivateRoute>
+                    <Customers />
+                  </PrivateRoute>
+                }
+              />
               <Route path="/contacts" element={<Contacts />} />
-              <Route path="/invoices" element={<Invoices />} />
               <Route path="/form" element={<Form />} />
-              <Route path="/bar" element={<Bar />} />
-              <Route path="/pie" element={<Pie />} />
-              <Route path="/line" element={<Line />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/calendar" element={<Calendar />} />
-              <Route path="/geography" element={<Geography />} />
             </Routes>
           </main>
         </div>

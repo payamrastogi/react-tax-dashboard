@@ -1,24 +1,32 @@
 import axios from "axios";
 
-export async function getIncomeTaxRecordByOwnerRefId(id) {
-  const response = await axios.get(
-    `http://localhost:8002/api/incomeTax/getByOwnerRefId/${id}`
+export function getIncomeTaxRecordByOwnerRefId(id) {
+  const response = axios.get(
+    `${process.env.REACT_APP_API_URL}/api/incomeTax/getByCustomerRefId/${id}`
   );
-  return response.data[0];
+  // .catch((error) => {
+  //   console.log(error);
+  //   return undefined;
+  // });
+  return response;
 }
 
-export async function createIncomeTaxRecord(incomeTaxDetails) {
-  const response = await axios.post(
-    "http://localhost:8002/api/incomeTax/add",
+export function createIncomeTaxRecord(incomeTaxDetails) {
+  const response = axios.post(
+    `${process.env.REACT_APP_API_URL}/api/incomeTax/add`,
     incomeTaxDetails
   );
-  return response.data;
+  // .catch((error) => {
+  //   console.log(error);
+  //   return undefined;
+  // });
+  return response;
 }
 
-export async function updateIncomeTaxRecord(incomeTaxDetails) {
-  const response = await axios.put(
-    `http://localhost:8002/api/incomeTax/update/${incomeTaxDetails.id}`,
+export function updateIncomeTaxRecord(incomeTaxDetails) {
+  const response = axios.put(
+    `${process.env.REACT_APP_API_URL}/api/incomeTax/update/${incomeTaxDetails.id}`,
     incomeTaxDetails
   );
-  return response.data;
+  return response;
 }

@@ -3,16 +3,11 @@ import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import HandshakeIcon from "@mui/icons-material/Handshake";
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange';
+import CurrencyExchangeIcon from "@mui/icons-material/CurrencyExchange";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
-import GeographyChart from "../../components/GeographyChart";
-import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
-import ProgressCircle from "../../components/ProgressCircle";
-import { Handshake } from "@mui/icons-material";
 
 const Dashboard = () => {
   const theme = useTheme();

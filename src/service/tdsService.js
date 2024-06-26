@@ -1,24 +1,24 @@
 import axios from "axios";
 
-export async function getTDSRecordByOwnerRefId(id) {
-  const response = await axios.get(
-    `http://localhost:8002/api/tds/getByOwnerRefId/${id}`
+export function getTDSRecordByOwnerRefId(id) {
+  const response = axios.get(
+    `${process.env.REACT_APP_API_URL}/api/tds/getByCustomerRefId/${id}`
   );
-  return response.data[0];
+  return response;
 }
 
-export async function createTDSRecord(tdsDetails) {
-  const response = await axios.post(
-    "http://localhost:8002/api/tds/add",
+export function createTDSRecord(tdsDetails) {
+  const response = axios.post(
+    `${process.env.REACT_APP_API_URL}/api/tds/add`,
     tdsDetails
   );
-  return response.data;
+  return response;
 }
 
-export async function updateTDSRecord(tdsDetails) {
-  const response = await axios.put(
-    `http://localhost:8002/api/tds/update/${tdsDetails.id}`,
+export function updateTDSRecord(tdsDetails) {
+  const response = axios.put(
+    `${process.env.REACT_APP_API_URL}/api/tds/update/${tdsDetails.id}`,
     tdsDetails
   );
-  return response.data;
+  return response;
 }

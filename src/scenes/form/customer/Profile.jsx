@@ -1,38 +1,42 @@
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
-import Header from "../../components/Header";
+import Header from "../../../components/Header";
 import { DatePicker } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
 import React from "react";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { getUserById, createUser, updateUser } from "../../service/userService";
+import {
+  getUserById,
+  createUser,
+  updateUser,
+} from "../../../service/userService";
 import Snackbar, { snackbarClasses } from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-const Profile = ({ id }) => {
+const Profile = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
   const [email, setEmail] = React.useState("");
-  const [mobileNumber, setMobileNumber] = React.useState("");
+  const [contactNumber, setcontactNumber] = React.useState("");
   const [panId, setPanId] = React.useState("");
-  const [aadharId, setAadharId] = React.useState("");
+  const [aadhaar, setAadhaar] = React.useState("");
   const [address1, setAddress1] = React.useState("");
   const [address2, setAddress2] = React.useState("");
-  const [value, setValue] = React.useState(dayjs("2022-04-17"));
+  const [value, setValue] = React.useState();
   const [message, setMessage] = React.useState("");
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
-  const isAddMode = !id;
+  const isAddMode = !props.id;
 
   function setUser(user) {
     setFirstName(user["firstName"]);
     setLastName(user["lastName"]);
     setEmail(user["email"]);
-    setMobileNumber(user["mobileNumber"]);
+    setcontactNumber(user["contactNumber"]);
     setPanId(user["panId"]);
-    setAadharId(user["aadharId"]);
+    setAadhaar(user["aadhaar"]);
     setAddress1(user["address1"]);
     setAddress2(user["address2"]);
   }
@@ -40,7 +44,7 @@ const Profile = ({ id }) => {
   React.useEffect(() => {
     if (!isAddMode) {
       // get user and set form fields
-      getUserById(id).then((user) => {
+      getUserById(props.id).then((user) => {
         setUser(user);
       });
     }
@@ -54,26 +58,27 @@ const Profile = ({ id }) => {
         firstName: firstName,
         lastName: lastName,
         email: email,
-        mobileNumber: mobileNumber,
+        contactNumber: contactNumber,
         panId: panId,
-        aadharId: aadharId,
+        aadhaar: aadhaar,
         address1: address1,
         address2: address2,
       };
       createUser(user).then((user) => {
+        props.onAdd(user.id);
         setUser(user);
         setMessage("User created successfully");
         setOpenSnackbar(true);
       });
     } else {
       let user = {
-        id: id,
+        id: props.id,
         firstName: firstName,
         lastName: lastName,
         email: email,
-        mobileNumber: mobileNumber,
+        contactNumber: contactNumber,
         panId: panId,
-        aadharId: aadharId,
+        aadhaar: aadhaar,
         address1: address1,
         address2: address2,
       };
@@ -173,10 +178,10 @@ const Profile = ({ id }) => {
           fullWidth
           variant="filled"
           type="text"
-          value={aadharId}
-          onChange={(event) => setAadharId(event.target.value)}
-          label="Aadhar"
-          name="aadhar"
+          value={aadhaar}
+          onChange={(event) => setAadhaar(event.target.value)}
+          label="Aadhaar"
+          name="aadhaar"
           sx={{ gridColumn: "span 2" }}
         />
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -203,8 +208,8 @@ const Profile = ({ id }) => {
           fullWidth
           variant="filled"
           type="text"
-          value={mobileNumber}
-          onChange={(event) => setMobileNumber(event.target.value)}
+          value={contactNumber}
+          onChange={(event) => setcontactNumber(event.target.value)}
           label="Contact Number"
           name="contact"
           sx={{ gridColumn: "span 4" }}

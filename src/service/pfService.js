@@ -1,24 +1,24 @@
 import axios from "axios";
 
-export async function getPFRecordByOwnerRefId(id) {
-  const response = await axios.get(
-    `http://localhost:8002/api/pf/getByOwnerRefId/${id}`
+export function getPFRecordByOwnerRefId(id) {
+  const response = axios.get(
+    `${process.env.REACT_APP_API_URL}/api/pf/getByCustomerRefId/${id}`
   );
-  return response.data[0];
+  return response;
 }
 
-export async function createPFRecord(pfDetails) {
-  const response = await axios.post(
-    "http://localhost:8002/api/pf/add",
+export function createPFRecord(pfDetails) {
+  const response = axios.post(
+    `${process.env.REACT_APP_API_URL}/api/pf/add`,
     pfDetails
   );
-  return response.data;
+  return response;
 }
 
-export async function updatePFRecord(pfDetails) {
-  const response = await axios.put(
-    `http://localhost:8002/api/pf/update/${pfDetails.id}`,
+export function updatePFRecord(pfDetails) {
+  const response = axios.put(
+    `${process.env.REACT_APP_API_URL}/api/pf/update/${pfDetails.id}`,
     pfDetails
   );
-  return response.data;
+  return response;
 }
