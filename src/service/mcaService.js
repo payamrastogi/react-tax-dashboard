@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export function getMCARecordByOwnerRefId(id) {
+export function getByCustomerRefId(id) {
   const response = axios.get(
     `${process.env.REACT_APP_API_URL}/api/mca/getByCustomerRefId/${id}`
   );

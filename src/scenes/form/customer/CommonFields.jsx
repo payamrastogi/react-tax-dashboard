@@ -68,10 +68,12 @@ const CommonFields = ({ state, dispatch }) => {
       >
         <TextField
           fullWidth
-          variant="filled"
+          color="secondary"
           type="text"
           value={state.panNumber}
           onChange={(e) => {
+            // PAN number should always be in upper-case
+            e.target.value = e.target.value.toUpperCase();
             handleInputChange(e);
           }}
           label="Pan No"
@@ -90,9 +92,9 @@ const CommonFields = ({ state, dispatch }) => {
           }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.email}
           onChange={(e) => {
             handleInputChange(e);
@@ -103,9 +105,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           type="text"
           value={state.contactNumber}
           onChange={(e) => {
@@ -116,8 +118,8 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.address.addressLine1}
           onChange={(e) => {
@@ -128,8 +130,8 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 4" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.address.city}
           onChange={(e) => {
@@ -140,9 +142,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.state}
           onChange={(e) => {
             handleAddressChange(e);
@@ -153,9 +155,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.country}
           onChange={(e) => {
             handleAddressChange(e);
@@ -166,9 +168,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.pinCode}
           onChange={(e) => {
             handleAddressChange(e);

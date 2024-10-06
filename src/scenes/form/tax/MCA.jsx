@@ -1,19 +1,20 @@
+import React from "react";
 import { useReducer } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Header";
-// import { DatePicker } from "@mui/x-date-pickers";
-import React from "react";
-// import dayjs from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
+
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import {
-  getMCARecordByOwnerRefId,
+  getByCustomerRefId,
   createMCARecord,
   updateMCARecord,
 } from "../../../service/mcaService";
@@ -40,11 +41,9 @@ const initialState = {
   id: "",
   companyType: "",
   cin: "",
-  dateOfInit: "",
   password: "",
   securityQuestionOfCompany: "",
   securrityAnswerOfCompany: "",
-  coveredUnderAudit: false,
   directors: [],
 };
 
@@ -64,6 +63,7 @@ function taxReducer(state, action) {
     case "SAVED_TAX_DETAILS":
       return {
         ...state,
+        ...payload,
         isLoading: false,
       };
     case "ERROR_SAVING_TAX_DETAILS":
@@ -79,8 +79,10 @@ function taxReducer(state, action) {
 
 const MCA = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -105,21 +107,33 @@ const MCA = (props) => {
     });
   };
 
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getMCARecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
+            console.log(res);
+            console.log(res.data);
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -153,11 +167,14 @@ const MCA = (props) => {
       }
       response
         .then((res) => {
-          if (res) {
+          if (res && res.data) {
             dispatch({
               type: "SAVED_TAX_DETAILS",
               payload: res.data,
             });
+            setSeverity("success");
+            setMessage("Tax details saved successfully");
+            setOpenSnackbar(true);
           }
         })
         .catch((error) => {
@@ -244,7 +261,7 @@ const MCA = (props) => {
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
           >
-            <FormControl variant="filled" sx={{ gridColumn: "span 2" }}>
+            <FormControl sx={{ gridColumn: "span 2" }}>
               <InputLabel id="typeOfEntityLabel" color="secondary">
                 Type of Entity
               </InputLabel>
@@ -268,7 +285,6 @@ const MCA = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="CIN/LLPIN"
               name="cin"
@@ -279,19 +295,29 @@ const MCA = (props) => {
               sx={{ gridColumn: "span 2" }}
             />
 
-            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="DOI"
-            value={dateOfInit}
-            onChange={(newValue) => setDateOfInit(newValue)}
-            sx={{ gridColumn: "span 2" }}
-          />
-        </LocalizationProvider> */}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                color="secondary"
+                label="Date of Incorporation"
+                name="dateOfRegistration"
+                inputFormat="YYYY-MM-DD"
+                value={dayjs(state.dateOfRegistration) ?? ""}
+                onChange={(e) => {
+                  handleDateChange("dateOfRegistration", e);
+                }}
+                sx={{ backgroundColor: "#3d3d3d", gridColumn: "span 2" }}
+                slotProps={{
+                  textField: {
+                    color: "secondary",
+                    focused: false,
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Login Password"
               name="password"
@@ -300,6 +326,30 @@ const MCA = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              label="Security Question"
+              name="securityQuestionOfCompany"
+              value={state.securityQuestionOfCompany}
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              label="Security Answer"
+              name="securrityAnswerOfCompany"
+              value={state.securrityAnswerOfCompany}
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
+              sx={{ gridColumn: "span 2" }}
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
@@ -312,7 +362,7 @@ const MCA = (props) => {
                 row
                 aria-labelledby="coveredUnderAuditRadioGroupLabel"
                 name="coveredUnderAudit"
-                value={state.coveredUnderAudit}
+                value={state.coveredUnderAudit?.toString() || ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -343,8 +393,8 @@ const MCA = (props) => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity={severity}
           variant="filled"
+          severity={severity}
           sx={{ width: "100%" }}
         >
           {message}

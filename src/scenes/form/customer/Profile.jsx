@@ -146,7 +146,6 @@ const Profile = (props) => {
       >
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           label="First Name"
           value={firstName}
@@ -156,7 +155,6 @@ const Profile = (props) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={lastName}
           onChange={(event) => setLastName(event.target.value)}
@@ -166,7 +164,6 @@ const Profile = (props) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={panId}
           onChange={(event) => setPanId(event.target.value)}
@@ -176,7 +173,6 @@ const Profile = (props) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={aadhaar}
           onChange={(event) => setAadhaar(event.target.value)}
@@ -195,7 +191,6 @@ const Profile = (props) => {
         <TextField
           required
           fullWidth
-          variant="filled"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           type="text"
@@ -206,7 +201,6 @@ const Profile = (props) => {
         <TextField
           required
           fullWidth
-          variant="filled"
           type="text"
           value={contactNumber}
           onChange={(event) => setcontactNumber(event.target.value)}
@@ -216,7 +210,6 @@ const Profile = (props) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={address1}
           onChange={(event) => setAddress1(event.target.value)}
@@ -226,7 +219,6 @@ const Profile = (props) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={address2}
           onChange={(event) => setAddress2(event.target.value)}

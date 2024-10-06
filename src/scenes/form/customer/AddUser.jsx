@@ -188,7 +188,7 @@ export default function AddUser(props) {
     if (state.persons && state.persons.length > 0) {
       let count = 0;
       state.persons.forEach((person, index) => {
-        if (person.isAuthorisedPerson) {
+        if (person.authorisedPerson) {
           count++;
         }
       });
@@ -346,8 +346,8 @@ export default function AddUser(props) {
             >
               <Alert
                 onClose={handleSnackbarClose}
-                severity={severity}
                 variant="filled"
+                severity={severity}
                 sx={{ width: "100%" }}
               >
                 {message}

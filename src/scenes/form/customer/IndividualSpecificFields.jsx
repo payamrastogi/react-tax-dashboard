@@ -55,7 +55,6 @@ const IndividualSpecificFields = ({ mode, state, dispatch }) => {
       >
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           label="First Name"
           value={state.firstName}
@@ -67,7 +66,6 @@ const IndividualSpecificFields = ({ mode, state, dispatch }) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={state.lastName}
           onChange={(e) => {
@@ -79,7 +77,6 @@ const IndividualSpecificFields = ({ mode, state, dispatch }) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={state.aadhaar}
           onChange={(e) => {
@@ -91,7 +88,6 @@ const IndividualSpecificFields = ({ mode, state, dispatch }) => {
         />
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           value={state.firmName}
           onChange={(e) => {

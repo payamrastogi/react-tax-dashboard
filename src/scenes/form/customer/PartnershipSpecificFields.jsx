@@ -19,7 +19,6 @@ const PartnershipSpecificFields = (props) => {
       >
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           label="Number of directors"
           value={numberOfDirectors}
