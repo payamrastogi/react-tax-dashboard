@@ -29,3 +29,10 @@ export function updateCustomer(customerDetails) {
   );
   return response;
 }
+
+export function deleteCustomerById(id) {
+  const response = axios.delete(
+    `${process.env.REACT_APP_API_URL}/api/customer/remove/${id}22`
+  );
+  return response;
+}

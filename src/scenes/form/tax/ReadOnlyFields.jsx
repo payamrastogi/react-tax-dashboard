@@ -41,26 +41,15 @@ const ReadOnlyFields = (props) => {
 
   return (
     <Box>
-      <Accordion
-      // sx={{
-      //   backgroundColor: "gray",
-      // }}
-      >
+      <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1-content"
           id="panel1-header"
-          // sx={{
-          //   backgroundColor: "grey",
-          // }}
         >
           Personal
         </AccordionSummary>
-        <AccordionDetails
-        // sx={{
-        //   backgroundColor: "gray",
-        // }}
-        >
+        <AccordionDetails>
           <Box
             display="grid"
             gap="30px"
@@ -74,7 +63,6 @@ const ReadOnlyFields = (props) => {
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={getName()}
                 type="text"
                 label="Name"
@@ -83,24 +71,23 @@ const ReadOnlyFields = (props) => {
               />
             )}
 
-            {(isIncomeTax() || isGST()) && (
+            {(isIncomeTax() || isGST() || isPF() || isECIS()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.firmName ?? ""}
                 type="text"
                 label="Firm Name"
                 name="firmName"
-                sx={{ gridColumn: "span 2" }}
+                sx={{ gridColumn: "span 4" }}
               />
             )}
+
             {/* MCA | TDS */}
             {(isMCA() || isTDS()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.companyName}
                 type="text"
                 label="Company/LLP Name"
@@ -109,11 +96,10 @@ const ReadOnlyFields = (props) => {
               />
             )}
             {/* Income Tax | MCA | TDS*/}
-            {(isIncomeTax() || isMCA() || isTDS()) && (
+            {(isIncomeTax() || isMCA() || isTDS() || isPF() || isECIS()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 type="text"
                 value={props.data.panNumber}
                 label="Pan No"
@@ -139,7 +125,6 @@ const ReadOnlyFields = (props) => {
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 type="text"
                 value={props.data.aadhaar}
                 label="Aadhaar"
@@ -160,6 +145,29 @@ const ReadOnlyFields = (props) => {
                 }}
               />
             )}
+            {/* GST | MCA | TDS*/}
+            {(isGST() || isMCA() || isTDS() || isPF() || isECIS()) && (
+              <TextField
+                disabled
+                fullWidth
+                value={getName}
+                type="text"
+                label="Authorised Person"
+                name="authorisedPerson"
+                sx={{ gridColumn: "span 2" }}
+              />
+            )}
+            {(isPF() || isECIS()) && (
+              <TextField
+                disabled
+                fullWidth
+                value={props.data.aadhaarOfAuthrorisedPerson ?? ""}
+                type="text"
+                label="Authorised Person Aadhaar"
+                name="aadhaarOfAuthrorisedPerson"
+                sx={{ gridColumn: "span 2" }}
+              />
+            )}
             {/* Income Tax | GST | MCA | PF | TDS*/}
             {(isIncomeTax() ||
               isGST() ||
@@ -170,7 +178,6 @@ const ReadOnlyFields = (props) => {
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.email}
                 type="text"
                 label="Email"
@@ -186,9 +193,9 @@ const ReadOnlyFields = (props) => {
               isECIS() ||
               isTDS()) && (
               <TextField
+                color="secondary"
                 disabled
                 fullWidth
-                variant="filled"
                 type="text"
                 value={props.data.contactNumber}
                 label="Contact Number"
@@ -196,25 +203,12 @@ const ReadOnlyFields = (props) => {
                 sx={{ gridColumn: "span 2" }}
               />
             )}
-            {/* Income Tax  | GST | MCA | TDS*/}
-            {(isIncomeTax() || isGST() || isMCA() || isTDS()) && (
-              <TextField
-                disabled
-                fullWidth
-                variant="filled"
-                value={getName}
-                type="text"
-                label="Authorised Person"
-                name="authorisedPerson"
-                sx={{ gridColumn: "span 2" }}
-              />
-            )}
+
             {/* Income Tax | MCA*/}
-            {(isIncomeTax() || isMCA() || isPF() || isECIS()) && (
+            {(isIncomeTax() || isMCA()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 type="text"
                 value={props.data.address.addressLine1}
                 label="Address"
@@ -223,11 +217,10 @@ const ReadOnlyFields = (props) => {
               />
             )}
             {/* Income Tax | MCA*/}
-            {(isIncomeTax() || isMCA() || isPF() || isECIS()) && (
+            {(isIncomeTax() || isMCA()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 type="text"
                 value={props.data.address.city}
                 label="City"
@@ -236,11 +229,10 @@ const ReadOnlyFields = (props) => {
               />
             )}
             {/* Income Tax | MCA*/}
-            {(isIncomeTax() || isMCA() || isPF() || isECIS()) && (
+            {(isIncomeTax() || isMCA()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.address.state}
                 type="text"
                 label="State"
@@ -249,11 +241,10 @@ const ReadOnlyFields = (props) => {
               />
             )}
             {/* Income Tax | MCA*/}
-            {(isIncomeTax() || isMCA() || isPF() || isECIS()) && (
+            {(isIncomeTax() || isMCA()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.address.country}
                 type="text"
                 label="Country"
@@ -262,11 +253,10 @@ const ReadOnlyFields = (props) => {
               />
             )}
             {/* Income Tax | MCA*/}
-            {(isIncomeTax() || isMCA() || isPF() || isECIS()) && (
+            {(isIncomeTax() || isMCA()) && (
               <TextField
                 disabled
                 fullWidth
-                variant="filled"
                 value={props.data.address.pinCode}
                 type="text"
                 label="Pin Code"

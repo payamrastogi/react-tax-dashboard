@@ -1,14 +1,14 @@
+import React from "react";
 import { useReducer } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Header";
-// import { DatePicker } from "@mui/x-date-pickers";
-import React from "react";
-// import dayjs from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
 import {
-  getPFRecordByOwnerRefId,
+  getByCustomerRefId,
   createPFRecord,
   updatePFRecord,
 } from "../../../service/pfService";
@@ -33,6 +33,8 @@ import Alert from "@mui/material/Alert";
 
 const initialState = {
   id: "",
+  isCoveredUnderAudit: false,
+  address: {},
 };
 
 function taxReducer(state, action) {
@@ -42,19 +44,24 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
-    case "SAVING_TAX_DETAILS":
-      console.log("dispatch SAVING_TAX_DETAILS");
+    case "CHANGE_ADDRESS":
+      var oldAddress = state.address;
+      oldAddress = { ...oldAddress, [payload.field]: payload.value };
+      return { ...state, address: oldAddress };
+    case "SAVING_DETAILS":
+      console.log("dispatch SAVING_DETAILS");
       return {
         ...state,
         isLoading: true,
       };
-    case "SAVED_TAX_DETAILS":
+    case "SAVED_DETAILS":
       return {
         ...state,
+        ...payload,
         isLoading: false,
       };
-    case "ERROR_SAVING_TAX_DETAILS":
-      console.log("dispatch ERROR_SAVING_TAX_DETAILS");
+    case "ERROR_SAVING_DETAILS":
+      console.log("dispatch ERROR_SAVING_DETAILS");
       return {
         ...state,
         isLoading: false,
@@ -66,8 +73,10 @@ function taxReducer(state, action) {
 
 const PF = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -91,21 +100,44 @@ const PF = (props) => {
       },
     });
   };
+
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
+  const handleAddressChange = (event) => {
+    const field = event.target.name;
+    const value = event.target.value;
+    dispatch({
+      type: "CHANGE_ADDRESS",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getPFRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -115,7 +147,7 @@ const PF = (props) => {
             handleBackDropClose();
           });
       } catch (error) {
-        console.error("Error fetching incometax details:", error);
+        console.error("Error fetching PF details:", error);
         setMessage(error.message);
         setSeverity("error");
         setOpenSnackbar(true);
@@ -128,7 +160,7 @@ const PF = (props) => {
     e.preventDefault();
     console.log("onsubmit");
     dispatch({
-      type: "SAVING_TAX_DETAILS",
+      type: "SAVING_DETAILS",
     });
     var response;
     try {
@@ -139,30 +171,33 @@ const PF = (props) => {
       }
       response
         .then((res) => {
-          if (res) {
+          if (res && res.data) {
             dispatch({
-              type: "SAVED_TAX_DETAILS",
+              type: "SAVED_DETAILS",
               payload: res.data,
             });
+            setSeverity("success");
+            setMessage("PF details saved successfully");
+            setOpenSnackbar(true);
           }
         })
         .catch((error) => {
-          console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+          console.error("ERROR_SAVING_DETAILS" + error.message);
           setSeverity("error");
           setMessage(error.message);
           setOpenSnackbar(true);
           dispatch({
-            type: "ERROR_SAVING_TAX_DETAILS",
+            type: "ERROR_SAVING_DETAILS",
             payload: error.message,
           });
         });
     } catch (error) {
-      console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+      console.error("ERROR_SAVING_DETAILS" + error.message);
       setSeverity("error");
       setMessage(error.message);
       setOpenSnackbar(true);
       dispatch({
-        type: "ERROR_SAVING_TAX_DETAILS",
+        type: "ERROR_SAVING_DETAILS",
         payload: error,
       });
     }
@@ -218,7 +253,7 @@ const PF = (props) => {
       <ReadOnlyFields service="pf" data={props.data} />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          Tax Related
+          PF Specific
         </AccordionSummary>
         <AccordionDetails>
           <Box
@@ -232,15 +267,15 @@ const PF = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="PF REGISTRATION NO"
-              name="pfRegistrationNo"
+              name="pfRegistrationNumber"
               value={state.pfRegistrationNumber}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.pfRegistrationNumber }}
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
@@ -252,8 +287,8 @@ const PF = (props) => {
               <RadioGroup
                 row
                 aria-labelledby="coveredUnderAuditRadioGroupLabel"
-                name="coveredUnderAudit"
-                value={state.coveredUnderAudit}
+                name="isCoveredUnderAudit"
+                value={state.isCoveredUnderAudit?.toString() || ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -274,7 +309,6 @@ const PF = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Login Password"
               name="password"
@@ -283,15 +317,93 @@ const PF = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.password }}
             />
-            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="DOR"
-            value={dateOfRegistration}
-            onChange={(newValue) => setDateOfRegistration(newValue)}
-            sx={{ gridColumn: "span 2" }}
-          />
-        </LocalizationProvider> */}
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              value={state.address.addressLine1}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Address"
+              name="addressLine1"
+              sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.address.addressLine1 }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              value={state.address.city}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="City"
+              name="city"
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.address.city }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              value={state.address.state}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="State"
+              name="state"
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.address.state }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              value={state.address.country}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Country"
+              name="country"
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.address.country }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              value={state.address.pinCode}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Pin Code"
+              name="pinCode"
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.address.pinCode }}
+            />
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                dispabled={!state.dateOfRegistration}
+                color="secondary"
+                label="Date of Registration"
+                name="dateOfRegistration"
+                inputFormat="YYYY-MM-DD"
+                value={dayjs(state.dateOfRegistration) ?? ""}
+                onChange={(e) => {
+                  handleDateChange("dateOfRegistration", e);
+                }}
+                sx={{ backgroundColor: "#3d3d3d", gridColumn: "span 2" }}
+                slotProps={{
+                  textField: {
+                    color: "secondary",
+                    focused: false,
+                  },
+                }}
+              />
+            </LocalizationProvider>
           </Box>
         </AccordionDetails>
       </Accordion>
@@ -305,8 +417,8 @@ const PF = (props) => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity={severity}
           variant="filled"
+          severity={severity}
           sx={{ width: "100%" }}
         >
           {message}

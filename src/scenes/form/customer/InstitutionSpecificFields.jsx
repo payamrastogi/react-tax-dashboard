@@ -54,8 +54,8 @@ const InstitutionSpecificFields = ({ state, dispatch }) => {
         }}
       >
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           label="Company/Firm Name"
           value={state.companyName}
@@ -66,8 +66,8 @@ const InstitutionSpecificFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.registrationNumber}
           onChange={(e) => {

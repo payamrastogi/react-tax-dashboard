@@ -29,7 +29,6 @@ const Customers = () => {
   const [searchText, setSearchText] = React.useState("");
   const [openDeleteConfirmationDialog, setOpenDeleteConfirmationDialog] =
     React.useState(false);
-
   const [openBackDrop, setOpenBackDrop] = React.useState(false);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
@@ -120,7 +119,7 @@ const Customers = () => {
       setRows([]);
       handleBackDropClose();
     }
-  }, [open]);
+  }, [open, openDeleteConfirmationDialog]);
 
   const handleClickOpen = () => {
     setId();
@@ -304,6 +303,7 @@ const Customers = () => {
             onClose={handleCloseTaxDialog}
           />
           <DeleteCustomerConfirmationDialog
+            id={id}
             open={openDeleteConfirmationDialog}
             onClose={handleCloseDeleteConfirmationDialog}
           />
@@ -342,8 +342,8 @@ const Customers = () => {
         >
           <Alert
             onClose={handleSnackbarClose}
-            severity={severity}
             variant="filled"
+            severity={severity}
             sx={{ width: "100%" }}
           >
             {message}

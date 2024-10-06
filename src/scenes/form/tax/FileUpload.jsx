@@ -50,7 +50,6 @@ const FileUpload = () => {
     <Box>
       <Box display="flex" alignItems="center" mb={3}>
         <TextField
-          variant="filled"
           color="secondary"
           label="Search by name or tags"
           value={searchQuery}

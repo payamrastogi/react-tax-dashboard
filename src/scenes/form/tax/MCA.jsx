@@ -1,19 +1,20 @@
+import React from "react";
 import { useReducer } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Header";
-// import { DatePicker } from "@mui/x-date-pickers";
-import React from "react";
-// import dayjs from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
+
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import {
-  getMCARecordByOwnerRefId,
+  getByCustomerRefId,
   createMCARecord,
   updateMCARecord,
 } from "../../../service/mcaService";
@@ -40,11 +41,9 @@ const initialState = {
   id: "",
   companyType: "",
   cin: "",
-  dateOfInit: "",
   password: "",
   securityQuestionOfCompany: "",
   securrityAnswerOfCompany: "",
-  coveredUnderAudit: false,
   directors: [],
 };
 
@@ -55,19 +54,20 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
-    case "SAVING_TAX_DETAILS":
-      console.log("dispatch SAVING_TAX_DETAILS");
+    case "SAVING_DETAILS":
+      console.log("dispatch SAVING_DETAILS");
       return {
         ...state,
         isLoading: true,
       };
-    case "SAVED_TAX_DETAILS":
+    case "SAVED_DETAILS":
       return {
         ...state,
+        ...payload,
         isLoading: false,
       };
-    case "ERROR_SAVING_TAX_DETAILS":
-      console.log("dispatch ERROR_SAVING_TAX_DETAILS");
+    case "ERROR_SAVING_DETAILS":
+      console.log("dispatch ERROR_SAVING_DETAILS");
       return {
         ...state,
         isLoading: false,
@@ -79,8 +79,10 @@ function taxReducer(state, action) {
 
 const MCA = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -105,21 +107,33 @@ const MCA = (props) => {
     });
   };
 
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getMCARecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
+            console.log(res);
+            console.log(res.data);
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -129,7 +143,7 @@ const MCA = (props) => {
             handleBackDropClose();
           });
       } catch (error) {
-        console.error("Error fetching incometax details:", error);
+        console.error("Error fetching PF details:", error);
         setMessage(error.message);
         setSeverity("error");
         setOpenSnackbar(true);
@@ -142,7 +156,7 @@ const MCA = (props) => {
     e.preventDefault();
     console.log("onsubmit");
     dispatch({
-      type: "SAVING_TAX_DETAILS",
+      type: "SAVING_DETAILS",
     });
     var response;
     try {
@@ -153,30 +167,33 @@ const MCA = (props) => {
       }
       response
         .then((res) => {
-          if (res) {
+          if (res && res.data) {
             dispatch({
-              type: "SAVED_TAX_DETAILS",
+              type: "SAVED_DETAILS",
               payload: res.data,
             });
+            setSeverity("success");
+            setMessage("PF details saved successfully");
+            setOpenSnackbar(true);
           }
         })
         .catch((error) => {
-          console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+          console.error("ERROR_SAVING_DETAILS" + error.message);
           setSeverity("error");
           setMessage(error.message);
           setOpenSnackbar(true);
           dispatch({
-            type: "ERROR_SAVING_TAX_DETAILS",
+            type: "ERROR_SAVING_DETAILS",
             payload: error.message,
           });
         });
     } catch (error) {
-      console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+      console.error("ERROR_SAVING_DETAILS" + error.message);
       setSeverity("error");
       setMessage(error.message);
       setOpenSnackbar(true);
       dispatch({
-        type: "ERROR_SAVING_TAX_DETAILS",
+        type: "ERROR_SAVING_DETAILS",
         payload: error,
       });
     }
@@ -233,7 +250,7 @@ const MCA = (props) => {
       <ReadOnlyFields service="mca" data={props.data} />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          Tax Related
+          MCA specific
         </AccordionSummary>
         <AccordionDetails>
           <Box
@@ -244,7 +261,7 @@ const MCA = (props) => {
               "& > div": { gridColumn: isNonMobile ? undefined : "span 4" },
             }}
           >
-            <FormControl variant="filled" sx={{ gridColumn: "span 2" }}>
+            <FormControl sx={{ gridColumn: "span 2" }}>
               <InputLabel id="typeOfEntityLabel" color="secondary">
                 Type of Entity
               </InputLabel>
@@ -268,7 +285,6 @@ const MCA = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="CIN/LLPIN"
               name="cin"
@@ -277,21 +293,32 @@ const MCA = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.cin }}
             />
 
-            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="DOI"
-            value={dateOfInit}
-            onChange={(newValue) => setDateOfInit(newValue)}
-            sx={{ gridColumn: "span 2" }}
-          />
-        </LocalizationProvider> */}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                color="secondary"
+                label="Date of Incorporation"
+                name="dateOfInit"
+                inputFormat="YYYY-MM-DD"
+                value={dayjs(state.dateOfInit) ?? ""}
+                onChange={(e) => {
+                  handleDateChange("dateOfInit", e);
+                }}
+                sx={{ backgroundColor: "#3d3d3d", gridColumn: "span 2" }}
+                slotProps={{
+                  textField: {
+                    color: "secondary",
+                    focused: false,
+                  },
+                }}
+              />
+            </LocalizationProvider>
 
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Login Password"
               name="password"
@@ -300,6 +327,33 @@ const MCA = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.password }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              label="Security Question"
+              name="securityQuestion"
+              value={state.securityQuestion}
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.securityQuestion }}
+            />
+            <TextField
+              color="secondary"
+              fullWidth
+              type="text"
+              label="Security Answer"
+              name="securityAnswer"
+              value={state.securityAnswer}
+              onChange={(e) => {
+                handleInputChange(e);
+              }}
+              sx={{ gridColumn: "span 2" }}
+              InputLabelProps={{ shrink: !!state.securityAnswer }}
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
@@ -311,8 +365,8 @@ const MCA = (props) => {
               <RadioGroup
                 row
                 aria-labelledby="coveredUnderAuditRadioGroupLabel"
-                name="coveredUnderAudit"
-                value={state.coveredUnderAudit}
+                name="isCoveredUnderAudit"
+                value={state.isCoveredUnderAudit?.toString() || ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -332,7 +386,14 @@ const MCA = (props) => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      <MCADirectors state={state} dispatch={dispatch} />
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          Directors
+        </AccordionSummary>
+        <AccordionDetails>
+          {!openBackDrop && <MCADirectors state={state} dispatch={dispatch} />}
+        </AccordionDetails>
+      </Accordion>
       <Snackbar
         open={openSnackbar}
         autoHideDuration={60000}
@@ -343,8 +404,8 @@ const MCA = (props) => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity={severity}
           variant="filled"
+          severity={severity}
           sx={{ width: "100%" }}
         >
           {message}

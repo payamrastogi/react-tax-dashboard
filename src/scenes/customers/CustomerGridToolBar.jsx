@@ -19,7 +19,7 @@ export const CustomerGridToolBar = (props) => {
       >
         Add
       </Button>
-      <Box sx={{ flexGrow: 1 }} />
+      {/* <Box sx={{ flexGrow: 1 }} />
       <Box
         display="flex"
         borderRadius="3px"
@@ -35,7 +35,7 @@ export const CustomerGridToolBar = (props) => {
         <IconButton type="button" sx={{ p: 1 }} onClick={props.handleSearch}>
           <SearchIcon />
         </IconButton>
-      </Box>
+      </Box> */}
     </GridToolbarContainer>
   );
 };
