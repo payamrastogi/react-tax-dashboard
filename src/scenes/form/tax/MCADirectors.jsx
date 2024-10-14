@@ -13,19 +13,15 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 function EditToolbar(props) {
   const { setRows, setRowModesModel, state } = props;
 
   const handleClick = () => {
-    const id = state.directors.length + 1;
+    const id = state.mcaDirectors.length + 1;
     setRows((oldRows) => [...oldRows, { id, addressLine1: "", isNew: true }]);
-    state.directors = [
-      ...state.directors,
+    state.mcaDirectors = [
+      ...state.mcaDirectors,
       { id, addressLine1: "", isNew: true },
     ];
     setRowModesModel((oldModel) => ({
@@ -43,8 +39,8 @@ function EditToolbar(props) {
   );
 }
 
-export default function MCADirectors({ state, dispatch }) {
-  const [rows, setRows] = React.useState(state.directors);
+export default function MCADirectors({ state, dispatch, setEdited }) {
+  const [rows, setRows] = React.useState(state.mcaDirectors ?? []);
   const [rowModesModel, setRowModesModel] = React.useState({});
 
   const handleRowEditStop = (params, event) => {
@@ -58,12 +54,13 @@ export default function MCADirectors({ state, dispatch }) {
   };
 
   const handleSaveClick = (id) => () => {
+    setEdited(true);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
   const handleDeleteClick = (id) => () => {
     setRows(rows.filter((row) => row.id !== id));
-    state.directors = state.directors.filter((row) => row.id !== id);
+    state.mcaDirectors = state.mcaDirectors.filter((row) => row.id !== id);
   };
 
   const handleCancelClick = (id) => () => {
@@ -75,14 +72,14 @@ export default function MCADirectors({ state, dispatch }) {
     const editedRow = rows.find((row) => row.id === id);
     if (editedRow.isNew) {
       setRows(rows.filter((row) => row.id !== id));
-      state.directors = state.directors.filter((row) => row.id !== id);
+      state.mcaDirectors = state.mcaDirectors.filter((row) => row.id !== id);
     }
   };
 
   const processRowUpdate = (newRow, oldRow) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    state.directors = state.directors.map((row) =>
+    state.mcaDirectors = state.mcaDirectors.map((row) =>
       row.id === newRow.id ? updatedRow : row
     );
     return updatedRow;
@@ -143,44 +140,44 @@ export default function MCADirectors({ state, dispatch }) {
       field: "name",
       headerName: "Name",
       width: 180,
-      editable: true,
+      editable: false,
     },
     {
       field: "panNumber",
       headerName: "Pan No.",
       width: 180,
-      editable: true,
+      editable: false,
     },
     {
       field: "email",
       headerName: "Email",
       width: 180,
       resizable: true,
-      editable: true,
+      editable: false,
     },
     {
       field: "contactNumber",
       headerName: "Contact",
       width: 120,
       resizable: true,
-      editable: true,
+      editable: false,
     },
     {
-      field: "password",
+      field: "mcaLoginPassword",
       headerName: "Password",
       width: 120,
       resizable: true,
       editable: true,
     },
     {
-      field: "securityQuestion",
+      field: "mcaSecurityQuestion",
       headerName: "Security Question",
       width: 120,
       resizable: true,
       editable: true,
     },
     {
-      field: "securityAnswer",
+      field: "mcaSecurityAnswer",
       headerName: "Security Answer",
       width: 120,
       resizable: true,
@@ -196,54 +193,53 @@ export default function MCADirectors({ state, dispatch }) {
   ];
 
   return (
-    <Accordion>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        Directors
-      </AccordionSummary>
-      <AccordionDetails>
-        <Box
-          sx={{
-            height: 400,
-            width: "100%",
-            "& .actions": {
-              color: "text.secondary",
-            },
-            "& .textPrimary": {
-              color: "text.primary",
-            },
-          }}
-        >
-          <DataGrid
-            sx={{
-              "& .MuiDataGrid-columnHeaderTitle": {
-                whiteSpace: "normal",
-                lineHeight: "normal",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                // Forced to use important since overriding inline styles
-                height: "unset !important",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                // Forced to use important since overriding inline styles
-                maxHeight: "180px !important",
-              },
-            }}
-            rows={rows}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            slots={{
-              toolbar: EditToolbar,
-            }}
-            slotProps={{
-              toolbar: { setRows, setRowModesModel, state },
-            }}
-          />
-        </Box>
-      </AccordionDetails>
-    </Accordion>
+    <Box
+      sx={{
+        height: 400,
+        width: "100%",
+        "& .actions": {
+          color: "text.secondary",
+        },
+        "& .textPrimary": {
+          color: "text.primary",
+        },
+      }}
+    >
+      <DataGrid
+        sx={{
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal",
+            lineHeight: "normal",
+          },
+          "& .MuiDataGrid-columnHeader": {
+            // Forced to use important since overriding inline styles
+            height: "unset !important",
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            // Forced to use important since overriding inline styles
+            maxHeight: "180px !important",
+          },
+          "& .MuiCheckbox-root": {
+            color: "green",
+          },
+          "& .MuiCheckbox-root.Mui-checked": {
+            color: "green",
+          },
+        }}
+        rows={rows}
+        columns={columns}
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        // slots={{
+        //   toolbar: EditToolbar,
+        // }}
+        // slotProps={{
+        //   toolbar: { setRows, setRowModesModel, state },
+        // }}
+      />
+    </Box>
   );
 }

@@ -1,3 +1,4 @@
+import React from "react";
 import { useReducer } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -6,11 +7,11 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-// import { DatePicker } from "@mui/x-date-pickers";
-import React from "react";
-// import dayjs from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers";
+
+import dayjs from "dayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -19,7 +20,7 @@ import FormLabel from "@mui/material/FormLabel";
 import ReadOnlyFields from "./ReadOnlyFields";
 
 import {
-  getGSTRecordByOwnerRefId,
+  getByCustomerRefId,
   createGSTRecord,
   updateGSTRecord,
 } from "../../../service/gstService";
@@ -44,8 +45,7 @@ const initialState = {
   currentStatus: "",
   loginId: "",
   password: "",
-  isCoveredUnderAudit: false,
-  businessAddresses: [],
+  addresses: [],
 };
 
 function taxReducer(state, action) {
@@ -55,19 +55,20 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
-    case "SAVING_TAX_DETAILS":
-      console.log("dispatch SAVING_TAX_DETAILS");
+    case "SAVING_DETAILS":
+      console.log("dispatch SAVING_DETAILS");
       return {
         ...state,
         isLoading: true,
       };
-    case "SAVED_TAX_DETAILS":
+    case "SAVED_DETAILS":
       return {
         ...state,
+        ...payload,
         isLoading: false,
       };
-    case "ERROR_SAVING_TAX_DETAILS":
-      console.log("dispatch ERROR_SAVING_TAX_DETAILS");
+    case "ERROR_SAVING_DETAILS":
+      console.log("dispatch ERROR_SAVING_DETAILS");
       return {
         ...state,
         isLoading: false,
@@ -79,8 +80,11 @@ function taxReducer(state, action) {
 
 const GST = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
+
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -94,6 +98,7 @@ const GST = (props) => {
   //----
 
   const handleInputChange = (event) => {
+    props.setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({
@@ -105,21 +110,31 @@ const GST = (props) => {
     });
   };
 
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("gst ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getGSTRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -129,7 +144,7 @@ const GST = (props) => {
             handleBackDropClose();
           });
       } catch (error) {
-        console.error("Error fetching incometax details:", error);
+        console.error("Error fetching gst details:", error);
         setMessage(error.message);
         setSeverity("error");
         setOpenSnackbar(true);
@@ -142,7 +157,7 @@ const GST = (props) => {
     e.preventDefault();
     console.log("onsubmit");
     dispatch({
-      type: "SAVING_TAX_DETAILS",
+      type: "SAVING_DETAILS",
     });
     var response;
     try {
@@ -153,30 +168,34 @@ const GST = (props) => {
       }
       response
         .then((res) => {
-          if (res) {
+          if (res && res.data) {
             dispatch({
-              type: "SAVED_TAX_DETAILS",
+              type: "SAVED_DETAILS",
               payload: res.data,
             });
+            setSeverity("success");
+            setMessage("GST details saved successfully");
+            setOpenSnackbar(true);
+            props.setEdited(false);
           }
         })
         .catch((error) => {
-          console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+          console.error("ERROR_SAVING_DETAILS" + error.message);
           setSeverity("error");
           setMessage(error.message);
           setOpenSnackbar(true);
           dispatch({
-            type: "ERROR_SAVING_TAX_DETAILS",
+            type: "ERROR_SAVING_DETAILS",
             payload: error.message,
           });
         });
     } catch (error) {
-      console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+      console.error("ERROR_SAVING_DETAILS" + error.message);
       setSeverity("error");
       setMessage(error.message);
       setOpenSnackbar(true);
       dispatch({
-        type: "ERROR_SAVING_TAX_DETAILS",
+        type: "ERROR_SAVING_DETAILS",
         payload: error,
       });
     }
@@ -231,7 +250,7 @@ const GST = (props) => {
       <ReadOnlyFields service="gst" data={props.data} />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          Tax Related
+          GST Specific
         </AccordionSummary>
         <AccordionDetails>
           <Box
@@ -243,18 +262,28 @@ const GST = (props) => {
             }}
           >
             {/* Editable Fields */}
-            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Date of Reg."
-            value={dateOfRegistration}
-            onChange={(newValue) => setDateOfRegistration(newValue)}
-            sx={{ gridColumn: "span 2" }}
-          />
-        </LocalizationProvider> */}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                color="secondary"
+                label="Date of Registration"
+                name="dateOfRegistration"
+                inputFormat="YYYY-MM-DD"
+                value={dayjs(state.dateOfRegistration) ?? ""}
+                onChange={(e) => {
+                  handleDateChange("dateOfRegistration", e);
+                }}
+                sx={{ backgroundColor: "#3d3d3d", gridColumn: "span 2" }}
+                slotProps={{
+                  textField: {
+                    color: "secondary",
+                    focused: false,
+                  },
+                }}
+              />
+            </LocalizationProvider>
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="GSTIN"
               name="gstin"
@@ -263,8 +292,9 @@ const GST = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.gstin }}
             />
-            <FormControl variant="filled" sx={{ gridColumn: "span 2" }}>
+            <FormControl sx={{ gridColumn: "span 2" }}>
               <InputLabel id="dealerTypeLabel" color="secondary">
                 Dealer Type
               </InputLabel>
@@ -283,14 +313,14 @@ const GST = (props) => {
                 <MenuItem value="COMPOSITION">Composition</MenuItem>
               </Select>
             </FormControl>
-            <FormControl variant="filled" sx={{ gridColumn: "span 2" }}>
+            <FormControl sx={{ gridColumn: "span 2" }}>
               <InputLabel id="returnTypeLabel" color="secondary">
-                Return Type
+                Return Frequency
               </InputLabel>
               <Select
                 labelId="returnTypeSelectLabel"
-                name="returnType"
-                value={state.returnType ?? ""}
+                name="returnFrequency"
+                value={state.returnFrequency ?? ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -302,24 +332,30 @@ const GST = (props) => {
                 <MenuItem value="QUARTERLY">Quarterly</MenuItem>
               </Select>
             </FormControl>
+            <FormControl sx={{ gridColumn: "span 2" }}>
+              <InputLabel id="currentStatusLabel" color="secondary">
+                Current Status
+              </InputLabel>
+              <Select
+                labelId="currentStatusSelectLabel"
+                name="currentStatus"
+                value={state.currentStatus ?? ""}
+                onChange={(e) => {
+                  handleInputChange(e);
+                }}
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                <MenuItem value="ACTIVE">Active</MenuItem>
+                <MenuItem value="SUSPENDED">Suspended</MenuItem>
+                <MenuItem value="CANCELLED">Cancelled</MenuItem>
+              </Select>
+            </FormControl>
 
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
-              type="text"
-              label="Current Status"
-              name="currentStatus"
-              value={state.currentStatus}
-              onChange={(e) => {
-                handleInputChange(e);
-              }}
-              sx={{ gridColumn: "span 2" }}
-            />
-            <TextField
-              color="secondary"
-              fullWidth
-              variant="filled"
               type="text"
               label="Login Id"
               name="loginId"
@@ -328,11 +364,11 @@ const GST = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.loginId }}
             />
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Login Password"
               name="password"
@@ -341,6 +377,7 @@ const GST = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.password }}
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
@@ -354,7 +391,7 @@ const GST = (props) => {
                 row
                 aria-labelledby="coveredUnderAuditRadioGroupLabel"
                 name="isCoveredUnderAudit"
-                value={state.isCoveredUnderAudit}
+                value={state.isCoveredUnderAudit?.toString() || ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -374,7 +411,20 @@ const GST = (props) => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      <GSTBusinessAddresses state={state} dispatch={dispatch} />
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          Business Addresses
+        </AccordionSummary>
+        <AccordionDetails>
+          {!openBackDrop && (
+            <GSTBusinessAddresses
+              state={state}
+              dispatch={dispatch}
+              setEdited={props.setEdited}
+            />
+          )}
+        </AccordionDetails>
+      </Accordion>
       <Snackbar
         open={openSnackbar}
         autoHideDuration={60000}
@@ -385,8 +435,8 @@ const GST = (props) => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity={severity}
           variant="filled"
+          severity={severity}
           sx={{ width: "100%" }}
         >
           {message}

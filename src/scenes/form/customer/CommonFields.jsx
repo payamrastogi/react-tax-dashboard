@@ -6,7 +6,7 @@ import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 
-const CommonFields = ({ state, dispatch }) => {
+const CommonFields = ({ state, dispatch, setEdited }) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [message, setMessage] = React.useState("");
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -33,6 +33,7 @@ const CommonFields = ({ state, dispatch }) => {
   );
 
   const handleInputChange = (event) => {
+    setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({
@@ -45,6 +46,7 @@ const CommonFields = ({ state, dispatch }) => {
   };
 
   const handleAddressChange = (event) => {
+    setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({
@@ -68,10 +70,12 @@ const CommonFields = ({ state, dispatch }) => {
       >
         <TextField
           fullWidth
-          variant="filled"
+          color="secondary"
           type="text"
           value={state.panNumber}
           onChange={(e) => {
+            // PAN number should always be in upper-case
+            e.target.value = e.target.value.toUpperCase();
             handleInputChange(e);
           }}
           label="Pan No"
@@ -90,9 +94,9 @@ const CommonFields = ({ state, dispatch }) => {
           }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.email}
           onChange={(e) => {
             handleInputChange(e);
@@ -103,9 +107,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           type="text"
           value={state.contactNumber}
           onChange={(e) => {
@@ -116,8 +120,8 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.address.addressLine1}
           onChange={(e) => {
@@ -128,8 +132,8 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 4" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.address.city}
           onChange={(e) => {
@@ -140,9 +144,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.state}
           onChange={(e) => {
             handleAddressChange(e);
@@ -153,9 +157,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.country}
           onChange={(e) => {
             handleAddressChange(e);
@@ -166,9 +170,9 @@ const CommonFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           required
           fullWidth
-          variant="filled"
           value={state.address.pinCode}
           onChange={(e) => {
             handleAddressChange(e);

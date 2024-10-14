@@ -2,7 +2,6 @@ import * as React from "react";
 import PropTypes from "prop-types";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
-import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import IncomeTax from "./IncomeTax";
 import GST from "./GST";
@@ -114,22 +113,26 @@ export default function Tax(props) {
         <FileUpload data={props.data} id={props.id} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <IncomeTax data={props.data} id={props.id} />
+        <IncomeTax
+          data={props.data}
+          id={props.id}
+          setEdited={props.setEdited}
+        />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <GST data={props.data} id={props.id} />
+        <GST data={props.data} id={props.id} setEdited={props.setEdited} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <MCA data={props.data} id={props.id} />
+        <MCA data={props.data} id={props.id} setEdited={props.setEdited} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={4}>
-        <PF data={props.data} id={props.id} />
+        <PF data={props.data} id={props.id} setEdited={props.setEdited} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={5}>
-        <ESIC data={props.data} id={props.id} />
+        <ESIC data={props.data} id={props.id} setEdited={props.setEdited} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={6}>
-        <TDS data={props.data} id={props.id} />
+        <TDS data={props.data} id={props.id} setEdited={props.setEdited} />
       </CustomTabPanel>
     </Box>
   );

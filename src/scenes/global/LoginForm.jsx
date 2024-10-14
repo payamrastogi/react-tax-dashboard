@@ -1,32 +1,44 @@
-import { useEffect, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { AuthContext } from "./AuthProvider";
-import * as React from "react";
-import Avatar from "@mui/material/Avatar";
-import CssBaseline from "@mui/material/CssBaseline";
-import Link from "@mui/material/Link";
-import Paper from "@mui/material/Paper";
-import Box from "@mui/material/Box";
-import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import Avatar from "@mui/material/Avatar";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import Grid from "@mui/material/Grid";
+import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import { jwtDecode } from "jwt-decode";
+import * as React from "react";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { signIn } from "../../service/authService";
+import { AuthContext } from "./AuthProvider";
 
 const Login = () => {
   const navigate = useNavigate();
   const { isLoggedIn, user, login, logout } = useContext(AuthContext);
 
   function handleCallbackResponse(response) {
+    console.log(response);
+    console.log(response.credential);
     var userObject = jwtDecode(response.credential);
-    if (userObject && userObject["email_verified"]) {
-      console.log("login form authenticated");
-      login(userObject);
-      if (window.history?.length && window.history.length > 1) {
-        navigate(-1);
-      } else {
-        navigate("/dashboard", { replace: true });
-      }
-    }
+    var credentials = response.credential;
+    signIn(credentials)
+      .then((res) => {
+        if (res && res.data && res.data["authorised"]) {
+          console.log(res);
+          console.log("login form authenticated");
+          login(userObject, credentials);
+          if (window.history?.length && window.history.length > 1) {
+            navigate(-1);
+          } else {
+            navigate("/customers", { replace: true });
+          }
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        console.error(error.request);
+        console.error(error.message);
+      });
   }
 
   useEffect(() => {

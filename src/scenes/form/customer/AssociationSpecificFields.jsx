@@ -29,7 +29,6 @@ const AssociationSpecificFields = ({ state, dispatch }) => {
       >
         <TextField
           fullWidth
-          variant="filled"
           type="text"
           label="Number of members"
           value={state.numberOfMembers}

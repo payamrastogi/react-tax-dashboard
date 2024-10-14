@@ -33,7 +33,11 @@ CustomTabPanel.propTypes = {
 export default function Form(props) {
   return (
     <Box sx={{ width: "100%" }}>
-      <AddUser id={props.id} setOpen={props.setOpen} />
+      <AddUser
+        id={props.id}
+        setOpen={props.setOpen}
+        setEdited={props.setEdited}
+      />
     </Box>
   );
 }

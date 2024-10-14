@@ -4,7 +4,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Header";
 import React from "react";
 import {
-  getTDSRecordByOwnerRefId,
+  getByCustomerRefId,
   createTDSRecord,
   updateTDSRecord,
 } from "../../../service/tdsService";
@@ -28,13 +28,6 @@ import Alert from "@mui/material/Alert";
 
 const initialState = {
   id: "",
-  companyType: "",
-  cin: "",
-  dateOfInit: "",
-  password: "",
-  securityQuestionOfCompany: "",
-  securrityAnswerOfCompany: "",
-  isCoveredUnderAudit: false,
 };
 
 function taxReducer(state, action) {
@@ -44,19 +37,20 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
-    case "SAVING_TAX_DETAILS":
-      console.log("dispatch SAVING_TAX_DETAILS");
+    case "SAVING_DETAILS":
+      console.log("dispatch SAVING_DETAILS");
       return {
         ...state,
         isLoading: true,
       };
-    case "SAVED_TAX_DETAILS":
+    case "SAVED_DETAILS":
       return {
         ...state,
+        ...payload,
         isLoading: false,
       };
-    case "ERROR_SAVING_TAX_DETAILS":
-      console.log("dispatch ERROR_SAVING_TAX_DETAILS");
+    case "ERROR_SAVING_DETAILS":
+      console.log("dispatch ERROR_SAVING_DETAILS");
       return {
         ...state,
         isLoading: false,
@@ -68,8 +62,10 @@ function taxReducer(state, action) {
 
 const TDS = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -83,6 +79,7 @@ const TDS = (props) => {
   //----
 
   const handleInputChange = (event) => {
+    props.setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({
@@ -95,20 +92,20 @@ const TDS = (props) => {
   };
 
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("TDS ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getTDSRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -118,7 +115,7 @@ const TDS = (props) => {
             handleBackDropClose();
           });
       } catch (error) {
-        console.error("Error fetching incometax details:", error);
+        console.error("Error fetching TDS details:", error);
         setMessage(error.message);
         setSeverity("error");
         setOpenSnackbar(true);
@@ -131,7 +128,7 @@ const TDS = (props) => {
     e.preventDefault();
     console.log("onsubmit");
     dispatch({
-      type: "SAVING_TAX_DETAILS",
+      type: "SAVING_DETAILS",
     });
     var response;
     try {
@@ -142,30 +139,34 @@ const TDS = (props) => {
       }
       response
         .then((res) => {
-          if (res) {
+          if (res && res.data) {
             dispatch({
-              type: "SAVED_TAX_DETAILS",
+              type: "SAVED_DETAILS",
               payload: res.data,
             });
+            setSeverity("success");
+            setMessage("TDS details saved successfully");
+            setOpenSnackbar(true);
+            props.setEdited(false);
           }
         })
         .catch((error) => {
-          console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+          console.error("ERROR_SAVING_DETAILS" + error.message);
           setSeverity("error");
           setMessage(error.message);
           setOpenSnackbar(true);
           dispatch({
-            type: "ERROR_SAVING_TAX_DETAILS",
+            type: "ERROR_SAVING_DETAILS",
             payload: error.message,
           });
         });
     } catch (error) {
-      console.error("ERROR_SAVING_TAX_DETAILS" + error.message);
+      console.error("ERROR_SAVING_DETAILS" + error.message);
       setSeverity("error");
       setMessage(error.message);
       setOpenSnackbar(true);
       dispatch({
-        type: "ERROR_SAVING_TAX_DETAILS",
+        type: "ERROR_SAVING_DETAILS",
         payload: error,
       });
     }
@@ -221,7 +222,7 @@ const TDS = (props) => {
       <ReadOnlyFields service="tds" data={props.data} />
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          Tax Related
+          TDS Related
         </AccordionSummary>
         <AccordionDetails>
           <Box
@@ -235,15 +236,15 @@ const TDS = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="TAN NO"
-              name="tanNo"
+              name="tanNumber"
               value={state.tanNumber}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.tanNumber }}
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
@@ -256,8 +257,8 @@ const TDS = (props) => {
                 color="secondary"
                 row
                 aria-labelledby="coveredUnderAuditRadioGroupLabel"
-                name="coveredUnderAudit"
-                value={state.coveredUnderAudit}
+                name="isCoveredUnderAudit"
+                value={state.isCoveredUnderAudit?.toString() || ""}
                 onChange={(e) => {
                   handleInputChange(e);
                 }}
@@ -293,28 +294,28 @@ const TDS = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="ID"
-              name="loginIdITD"
-              value={state.password}
+              name="itdLoginId"
+              value={state.itdLoginId}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.itdLoginId }}
             />
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Password"
-              name="passwordITD"
-              value={state.password}
+              name="itdPassword"
+              value={state.itdPassword}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.itdPassword }}
             />
           </Box>
         </AccordionDetails>
@@ -335,28 +336,28 @@ const TDS = (props) => {
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="ID"
-              name="loginIdTraces"
-              value={state.password}
+              name="tracesLoginId"
+              value={state.tracesLoginId}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.tracesLoginId }}
             />
             <TextField
               color="secondary"
               fullWidth
-              variant="filled"
               type="text"
               label="Password"
-              name="passwordTraces"
-              value={state.password}
+              name="tracesPassword"
+              value={state.tracesPassword}
               onChange={(e) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+              InputLabelProps={{ shrink: !!state.tracesPassword }}
             />
           </Box>
         </AccordionDetails>
@@ -371,8 +372,8 @@ const TDS = (props) => {
       >
         <Alert
           onClose={handleSnackbarClose}
-          severity={severity}
           variant="filled"
+          severity={severity}
           sx={{ width: "100%" }}
         >
           {message}

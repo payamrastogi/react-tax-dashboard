@@ -3,7 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import * as React from "react";
-import { getCustomers } from "../../service/customerService";
+import { getCustomers, searchCustomers } from "../../service/customerService";
 import { Navigate } from "react-router-dom";
 import { CustomerGridToolBar } from "./CustomerGridToolBar";
 import { TaxDialog } from "./TaxDialog";
@@ -29,7 +29,6 @@ const Customers = () => {
   const [searchText, setSearchText] = React.useState("");
   const [openDeleteConfirmationDialog, setOpenDeleteConfirmationDialog] =
     React.useState(false);
-
   const [openBackDrop, setOpenBackDrop] = React.useState(false);
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
@@ -64,7 +63,7 @@ const Customers = () => {
   );
 
   React.useMemo(() => {
-    const loggedInUser = localStorage.getItem("authenticated");
+    const loggedInUser = localStorage.getItem("user");
     if (loggedInUser) {
       setauthenticated(loggedInUser);
     }
@@ -120,7 +119,7 @@ const Customers = () => {
       setRows([]);
       handleBackDropClose();
     }
-  }, [open]);
+  }, [open, openDeleteConfirmationDialog]);
 
   const handleClickOpen = () => {
     setId();
@@ -130,6 +129,24 @@ const Customers = () => {
 
   const handleSearch = () => {
     console.log(searchText);
+    handleBackDropOpen();
+    try {
+      searchCustomers(searchText)
+        .then((res) => {
+          if (res) setRows(res.data);
+          else setRows([]);
+          handleBackDropClose();
+        })
+        .catch((error) => {
+          console.error(error.request);
+          setRows([]);
+          handleBackDropClose();
+        });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      setRows([]);
+      handleBackDropClose();
+    }
   };
 
   const handleClose = () => {
@@ -145,11 +162,13 @@ const Customers = () => {
   };
 
   const getTitle = (row) => {
+    let name = "";
     if (row.category === "INDIVIDUAL") {
-      return `${row.category}: ${row.firstName} ${row.lastName}`;
+      name = `${row.firstName} ${row.lastName}`;
     } else {
-      return `${row.category}: ${row.companyName}`;
+      name = `${row.companyName}`;
     }
+    return `${row.customerId} | ${name} | ${row.category}`;
   };
 
   const columns = [
@@ -304,6 +323,7 @@ const Customers = () => {
             onClose={handleCloseTaxDialog}
           />
           <DeleteCustomerConfirmationDialog
+            id={id}
             open={openDeleteConfirmationDialog}
             onClose={handleCloseDeleteConfirmationDialog}
           />
@@ -342,8 +362,8 @@ const Customers = () => {
         >
           <Alert
             onClose={handleSnackbarClose}
-            severity={severity}
             variant="filled"
+            severity={severity}
             sx={{ width: "100%" }}
           >
             {message}
