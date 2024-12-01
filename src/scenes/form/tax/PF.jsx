@@ -33,6 +33,7 @@ import Alert from "@mui/material/Alert";
 
 const initialState = {
   id: "",
+  address: {},
 };
 
 function taxReducer(state, action) {
@@ -42,6 +43,10 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
+    case "CHANGE_ADDRESS":
+      var oldAddress = state.address;
+      oldAddress = { ...oldAddress, [payload.field]: payload.value };
+      return { ...state, address: oldAddress };
     case "SAVING_TAX_DETAILS":
       console.log("dispatch SAVING_TAX_DETAILS");
       return {
@@ -91,6 +96,19 @@ const PF = (props) => {
       },
     });
   };
+
+  const handleAddressChange = (event) => {
+    const field = event.target.name;
+    const value = event.target.value;
+    dispatch({
+      type: "CHANGE_ADDRESS",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
     console.log("incomeTax ownerRef: " + ownerRef);
     if (ownerRef) {
@@ -283,6 +301,66 @@ const PF = (props) => {
                 handleInputChange(e);
               }}
               sx={{ gridColumn: "span 4" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.addressLine1}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Address"
+              name="addressLine1"
+              sx={{ gridColumn: "span 4" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.city}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="City"
+              name="city"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.state}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="State"
+              name="state"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.country}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Country"
+              name="country"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.pinCode}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Pin Code"
+              name="pinCode"
+              sx={{ gridColumn: "span 2" }}
             />
             {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker

@@ -72,6 +72,8 @@ const CommonFields = ({ state, dispatch }) => {
           type="text"
           value={state.panNumber}
           onChange={(e) => {
+            // PAN number should always be in upper-case
+            e.target.value = e.target.value.toUpperCase();
             handleInputChange(e);
           }}
           label="Pan No"
