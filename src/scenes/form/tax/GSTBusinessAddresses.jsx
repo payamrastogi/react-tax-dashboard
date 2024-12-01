@@ -22,10 +22,10 @@ function EditToolbar(props) {
   const { setRows, setRowModesModel, state } = props;
 
   const handleClick = () => {
-    const id = state.businessAddresses.length + 1;
+    const id = state.addresses.length + 1;
     setRows((oldRows) => [...oldRows, { id, addressLine1: "", isNew: true }]);
-    state.businessAddresses = [
-      ...state.businessAddresses,
+    state.addresses = [
+      ...state.addresses,
       { id, addressLine1: "", isNew: true },
     ];
     setRowModesModel((oldModel) => ({
@@ -44,7 +44,7 @@ function EditToolbar(props) {
 }
 
 export default function GSTBusinessAddresses({ state, dispatch }) {
-  const [rows, setRows] = React.useState(state.businessAddresses);
+  const [rows, setRows] = React.useState(state.addresses);
   const [rowModesModel, setRowModesModel] = React.useState({});
 
   const handleRowEditStop = (params, event) => {
@@ -63,9 +63,7 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
 
   const handleDeleteClick = (id) => () => {
     setRows(rows.filter((row) => row.id !== id));
-    state.businessAddresses = state.businessAddresses.filter(
-      (row) => row.id !== id
-    );
+    state.addresses = state.addresses.filter((row) => row.id !== id);
   };
 
   const handleCancelClick = (id) => () => {
@@ -77,16 +75,14 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
     const editedRow = rows.find((row) => row.id === id);
     if (editedRow.isNew) {
       setRows(rows.filter((row) => row.id !== id));
-      state.businessAddresses = state.businessAddresses.filter(
-        (row) => row.id !== id
-      );
+      state.addresses = state.addresses.filter((row) => row.id !== id);
     }
   };
 
   const processRowUpdate = (newRow, oldRow) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    state.businessAddresses = state.businessAddresses.map((row) =>
+    state.addresses = state.addresses.map((row) =>
       row.id === newRow.id ? updatedRow : row
     );
     return updatedRow;

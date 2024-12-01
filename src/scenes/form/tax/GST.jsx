@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { useReducer } from "react";
 import { Box, Button, TextField } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -6,11 +7,11 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-// import { DatePicker } from "@mui/x-date-pickers";
+import { DatePicker } from "@mui/x-date-pickers";
 import React from "react";
-// import dayjs from "dayjs";
-// import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-// import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
@@ -19,7 +20,7 @@ import FormLabel from "@mui/material/FormLabel";
 import ReadOnlyFields from "./ReadOnlyFields";
 
 import {
-  getGSTRecordByOwnerRefId,
+  getByCustomerRefId,
   createGSTRecord,
   updateGSTRecord,
 } from "../../../service/gstService";
@@ -45,7 +46,7 @@ const initialState = {
   loginId: "",
   password: "",
   isCoveredUnderAudit: false,
-  businessAddresses: [],
+  addresses: [],
 };
 
 function taxReducer(state, action) {
@@ -79,8 +80,11 @@ function taxReducer(state, action) {
 
 const GST = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
+
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -105,21 +109,31 @@ const GST = (props) => {
     });
   };
 
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getGSTRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -243,14 +257,7 @@ const GST = (props) => {
             }}
           >
             {/* Editable Fields */}
-            {/* <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker
-            label="Date of Reg."
-            value={dateOfRegistration}
-            onChange={(newValue) => setDateOfRegistration(newValue)}
-            sx={{ gridColumn: "span 2" }}
-          />
-        </LocalizationProvider> */}
+
             <TextField
               color="secondary"
               fullWidth
@@ -285,7 +292,7 @@ const GST = (props) => {
             </FormControl>
             <FormControl variant="filled" sx={{ gridColumn: "span 2" }}>
               <InputLabel id="returnTypeLabel" color="secondary">
-                Return Type
+                Return Frequency
               </InputLabel>
               <Select
                 labelId="returnTypeSelectLabel"
@@ -302,7 +309,24 @@ const GST = (props) => {
                 <MenuItem value="QUARTERLY">Quarterly</MenuItem>
               </Select>
             </FormControl>
-
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <DatePicker
+                label="Date of Registration"
+                name="dateOfRegistration"
+                value={state.dateOfRegistration ?? ""}
+                onChange={(e) => {
+                  handleDateChange("dateOfRegistration", e);
+                }}
+                sx={{ backgroundColor: "#3d3d3d", gridColumn: "span 2" }}
+                slotProps={{
+                  textField: {
+                    variant: "filled",
+                    color: "secondary",
+                    focused: false,
+                  },
+                }}
+              />
+            </LocalizationProvider>
             <TextField
               color="secondary"
               fullWidth

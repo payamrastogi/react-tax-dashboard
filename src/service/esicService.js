@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export function getESICRecordByOwnerRefId(id) {
+export function getByCustomerRefId(id) {
   const response = axios.get(
     `${process.env.REACT_APP_API_URL}/api/esic/getByCustomerRefId/${id}`
   );

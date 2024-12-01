@@ -13,7 +13,7 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import {
-  getMCARecordByOwnerRefId,
+  getByCustomerRefId,
   createMCARecord,
   updateMCARecord,
 } from "../../../service/mcaService";
@@ -79,8 +79,10 @@ function taxReducer(state, action) {
 
 const MCA = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -106,20 +108,20 @@ const MCA = (props) => {
   };
 
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getMCARecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);

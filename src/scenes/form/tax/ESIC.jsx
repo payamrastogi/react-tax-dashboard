@@ -8,7 +8,7 @@ import dayjs from "dayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import {
-  getESICRecordByOwnerRefId,
+  getByCustomerRefId,
   createESICRecord,
   updateESICRecord,
 } from "../../../service/esicService";
@@ -35,6 +35,7 @@ import Alert from "@mui/material/Alert";
 
 const initialState = {
   id: "",
+  address: {},
 };
 
 function taxReducer(state, action) {
@@ -44,6 +45,10 @@ function taxReducer(state, action) {
       return { ...state, ...payload };
     case "CHANGE_INPUT":
       return { ...state, [payload.field]: payload.value };
+    case "CHANGE_ADDRESS":
+      var oldAddress = state.address;
+      oldAddress = { ...oldAddress, [payload.field]: payload.value };
+      return { ...state, address: oldAddress };
     case "SAVING_TAX_DETAILS":
       console.log("dispatch SAVING_TAX_DETAILS");
       return {
@@ -68,8 +73,10 @@ function taxReducer(state, action) {
 
 const ESIC = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -94,6 +101,28 @@ const ESIC = (props) => {
     });
   };
 
+  const handleDateChange = (field, value) => {
+    dispatch({
+      type: "CHANGE_INPUT",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
+  const handleAddressChange = (event) => {
+    const field = event.target.name;
+    const value = event.target.value;
+    dispatch({
+      type: "CHANGE_ADDRESS",
+      payload: {
+        value,
+        field,
+      },
+    });
+  };
+
   const [values, setValues] = React.useState({
     password: "",
     showPassword: false,
@@ -111,20 +140,20 @@ const ESIC = (props) => {
   };
 
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getESICRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
@@ -234,7 +263,7 @@ const ESIC = (props) => {
           </Button>
         </Box>
       </Box>
-      <ReadOnlyFields service="esic" data={props.data} />
+      <ReadOnlyFields service="ecis" data={props.data} />
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           Tax Related
@@ -307,7 +336,7 @@ const ESIC = (props) => {
                 name="dateOfRegistration"
                 value={state.dateOfRegistration ?? ""}
                 onChange={(e) => {
-                  handleInputChange(e);
+                  handleDateChange("dateOfRegistration", e);
                 }}
                 sx={{ gridColumn: "span 2" }}
               />
@@ -353,6 +382,66 @@ const ESIC = (props) => {
                 />
               </RadioGroup>
             </FormControl>
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.addressLine1}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Address"
+              name="addressLine1"
+              sx={{ gridColumn: "span 4" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.city}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="City"
+              name="city"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.state}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="State"
+              name="state"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.country}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Country"
+              name="country"
+              sx={{ gridColumn: "span 2" }}
+            />
+            <TextField
+              fullWidth
+              variant="filled"
+              type="text"
+              value={state.address.pinCode}
+              onChange={(e) => {
+                handleAddressChange(e);
+              }}
+              label="Pin Code"
+              name="pinCode"
+              sx={{ gridColumn: "span 2" }}
+            />
           </Box>
         </AccordionDetails>
       </Accordion>

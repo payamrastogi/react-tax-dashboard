@@ -4,7 +4,7 @@ import useMediaQuery from "@mui/material/useMediaQuery";
 import Header from "../../../components/Header";
 import React from "react";
 import {
-  getTDSRecordByOwnerRefId,
+  getByCustomerRefId,
   createTDSRecord,
   updateTDSRecord,
 } from "../../../service/tdsService";
@@ -68,8 +68,10 @@ function taxReducer(state, action) {
 
 const TDS = (props) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
-  const [state, dispatch] = useReducer(taxReducer, initialState);
-  const [ownerRef, setOwnerRef] = React.useState(props.id);
+  const [state, dispatch] = useReducer(taxReducer, {
+    ...initialState,
+    customerRefId: props.id,
+  });
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
@@ -95,20 +97,20 @@ const TDS = (props) => {
   };
 
   React.useEffect(() => {
-    console.log("incomeTax ownerRef: " + ownerRef);
-    if (ownerRef) {
+    console.log("incomeTax ownerRef: " + props.id);
+    if (props.id) {
       handleBackDropOpen();
       try {
         // get user and set form fields
-        getTDSRecordByOwnerRefId(ownerRef)
+        getByCustomerRefId(props.id)
           .then((res) => {
             if (res && res.data) {
               dispatch({
                 type: "INIT",
                 payload: res.data,
               });
-              handleBackDropClose();
             }
+            handleBackDropClose();
           })
           .catch((error) => {
             console.error(error.request);
