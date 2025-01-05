@@ -88,11 +88,26 @@ const MCA = (props) => {
   const [severity, setSeverity] = React.useState();
   const [message, setMessage] = React.useState("");
   const [openBackDrop, setOpenBackDrop] = React.useState(false);
+  const [validationError, setValidationError] = React.useState(false);
   const handleBackDropClose = () => {
     setOpenBackDrop(false);
   };
   const handleBackDropOpen = () => {
     setOpenBackDrop(true);
+  };
+
+  const validate = () => {
+    if (
+      state.securityQuestion &&
+      (!state.securityAnswer || state.securityAnswer.length < 5)
+    ) {
+      setValidationError(true);
+      return false;
+    }
+    if (!state.securityQuestion) {
+      state.securityAnswer = "";
+    }
+    return true;
   };
   //----
 
@@ -100,6 +115,13 @@ const MCA = (props) => {
     props.setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
+    if (field === "securityAnswer") {
+      if (value.length < 5) {
+        setValidationError(true);
+      } else {
+        setValidationError(false);
+      }
+    }
     dispatch({
       type: "CHANGE_INPUT",
       payload: {
@@ -159,6 +181,12 @@ const MCA = (props) => {
   const onSubmit = (e) => {
     e.preventDefault();
     console.log("onsubmit");
+    if (!validate()) {
+      setSeverity("error");
+      setMessage("Validation Failed");
+      setOpenSnackbar(true);
+      return;
+    }
     dispatch({
       type: "SAVING_DETAILS",
     });
@@ -363,6 +391,9 @@ const MCA = (props) => {
               }}
               sx={{ gridColumn: "span 2" }}
               InputLabelProps={{ shrink: !!state.securityAnswer }}
+              helperText={
+                validationError ? "Minimum 5 characters required" : ""
+              }
             />
             <FormControl sx={{ gridColumn: "span 4" }}>
               <FormLabel
