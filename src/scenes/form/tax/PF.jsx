@@ -328,66 +328,76 @@ const PF = (props) => {
               color="secondary"
               fullWidth
               type="text"
-              value={state.address.addressLine1}
+              value={state.address ? state.address.addressLine1 : ""}
               onChange={(e) => {
                 handleAddressChange(e);
               }}
               label="Address"
               name="addressLine1"
               sx={{ gridColumn: "span 4" }}
-              InputLabelProps={{ shrink: !!state.address.addressLine1 }}
+              InputLabelProps={{
+                shrink: state.address ? !!state.address.addressLine1 : false,
+              }}
             />
             <TextField
               color="secondary"
               fullWidth
               type="text"
-              value={state.address.city}
+              value={state.address ? state.address.city : ""}
               onChange={(e) => {
                 handleAddressChange(e);
               }}
               label="City"
               name="city"
               sx={{ gridColumn: "span 2" }}
-              InputLabelProps={{ shrink: !!state.address.city }}
+              InputLabelProps={{
+                shrink: state.address ? !!state.address.city : false,
+              }}
             />
             <TextField
               color="secondary"
               fullWidth
               type="text"
-              value={state.address.state}
+              value={state.address ? state.address.state : ""}
               onChange={(e) => {
                 handleAddressChange(e);
               }}
               label="State"
               name="state"
               sx={{ gridColumn: "span 2" }}
-              InputLabelProps={{ shrink: !!state.address.state }}
+              InputLabelProps={{
+                shrink: state.address ? !!state.address.state : false,
+              }}
             />
             <TextField
               color="secondary"
               fullWidth
               type="text"
-              value={state.address.country}
+              value={state.address ? state.address.country : ""}
               onChange={(e) => {
                 handleAddressChange(e);
               }}
               label="Country"
               name="country"
               sx={{ gridColumn: "span 2" }}
-              InputLabelProps={{ shrink: !!state.address.country }}
+              InputLabelProps={{
+                shrink: state.address ? !!state.address.country : false,
+              }}
             />
             <TextField
               color="secondary"
               fullWidth
               type="text"
-              value={state.address.pinCode}
+              value={state.address ? state.address.pinCode : ""}
               onChange={(e) => {
                 handleAddressChange(e);
               }}
               label="Pin Code"
               name="pinCode"
               sx={{ gridColumn: "span 2" }}
-              InputLabelProps={{ shrink: !!state.address.pinCode }}
+              InputLabelProps={{
+                shrink: state.address ? !!state.address.pinCode : false,
+              }}
             />
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <DatePicker
