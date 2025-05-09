@@ -172,13 +172,37 @@ export default function AddUser(props) {
   const getElement = () => {
     switch (activeStep) {
       case 0:
-        return <SelectCustomerType state={state} dispatch={dispatch} />;
+        return (
+          <SelectCustomerType
+            state={state}
+            dispatch={dispatch}
+            setEdited={props.setEdited}
+          />
+        );
       case 1:
-        return <EntityInformation state={state} dispatch={dispatch} />;
+        return (
+          <EntityInformation
+            state={state}
+            dispatch={dispatch}
+            setEdited={props.setEdited}
+          />
+        );
       case 2:
-        return <AdditionalInformation state={state} dispatch={dispatch} />;
+        return (
+          <AdditionalInformation
+            state={state}
+            dispatch={dispatch}
+            setEdited={props.setEdited}
+          />
+        );
       case 3:
-        return <SelectTaxServices state={state} dispatch={dispatch} />;
+        return (
+          <SelectTaxServices
+            state={state}
+            dispatch={dispatch}
+            setEdited={props.setEdited}
+          />
+        );
       default:
         return <h2>default step</h2>;
     }
@@ -188,7 +212,7 @@ export default function AddUser(props) {
     if (state.persons && state.persons.length > 0) {
       let count = 0;
       state.persons.forEach((person, index) => {
-        if (person.isAuthorisedPerson) {
+        if (person.authorisedPerson) {
           count++;
         }
       });
@@ -210,13 +234,18 @@ export default function AddUser(props) {
   };
 
   const handleSave = () => {
-    const isValidated = validatePersonArray();
-    if (!isValidated) {
-      return;
-    }
     dispatch({
       type: "SAVE_CUSTOMER",
     });
+    const isValidated = validatePersonArray();
+    if (!isValidated) {
+      dispatch({
+        type: "ERROR_SAVING_CUSTOMER",
+        payload: "Validation Error",
+      });
+      return;
+    }
+
     var response;
     try {
       if (state.id) {
@@ -232,10 +261,10 @@ export default function AddUser(props) {
               type: "SAVED_CUSTOMER",
               payload: res.data,
             });
+            props.setEdited(false);
           }
         })
         .catch((error) => {
-          console.error("error:12222" + error.message);
           setSeverity("error");
           setMessage(error.message);
           setOpenSnackbar(true);
@@ -245,7 +274,6 @@ export default function AddUser(props) {
           });
         });
     } catch (error) {
-      console.error("error:333333" + error.message);
       setSeverity("error");
       setMessage(error.message);
       setOpenSnackbar(true);
@@ -339,6 +367,7 @@ export default function AddUser(props) {
             </Box>
             <Snackbar
               open={openSnackbar}
+              autoHideDuration={10000}
               onClose={handleSnackbarClose}
               message={message}
               anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
@@ -346,8 +375,8 @@ export default function AddUser(props) {
             >
               <Alert
                 onClose={handleSnackbarClose}
-                severity={severity}
                 variant="filled"
+                severity={severity}
                 sx={{ width: "100%" }}
               >
                 {message}
@@ -356,7 +385,7 @@ export default function AddUser(props) {
             <Backdrop
               sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
               open={openBackDrop}
-              onClick={handleBackDropClose}
+              // onClick={handleBackDropClose}
             >
               <CircularProgress color="inherit" />
             </Backdrop>

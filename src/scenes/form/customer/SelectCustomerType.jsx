@@ -7,9 +7,10 @@ import FormLabel from "@mui/material/FormLabel";
 import { Box } from "@mui/material";
 import useMediaQuery from "@mui/material/useMediaQuery";
 
-export default function SelectCustomerType({ state, dispatch }) {
+export default function SelectCustomerType({ state, dispatch, setEdited }) {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const handleCustomerTypeChange = (event) => {
+    setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({

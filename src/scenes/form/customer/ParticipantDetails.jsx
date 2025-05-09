@@ -14,9 +14,15 @@ import {
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
 import dayjs from "dayjs";
+import { AddParticipantDialog } from "./AddParticipantDialog";
 
 function EditToolbar(props) {
+  const [openAddDialog, setOpenAddDialog] = React.useState(false);
   const { setRows, setRowModesModel, state } = props;
+
+  const handleCloseAddDialog = () => {
+    setOpenAddDialog(false);
+  };
 
   const handleClick = () => {
     const id = state.persons.length + 1;
@@ -34,11 +40,30 @@ function EditToolbar(props) {
     }));
   };
 
+  const handleAddExistingClick = () => {
+    setOpenAddDialog(true);
+  };
+
   return (
     <GridToolbarContainer>
       <Button color="secondary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add record
+        Add New
       </Button>
+      <Button
+        color="secondary"
+        startIcon={<AddIcon />}
+        onClick={handleAddExistingClick}
+      >
+        Add Existing
+      </Button>
+      <AddParticipantDialog
+        open={openAddDialog}
+        setOpen={setOpenAddDialog}
+        onClose={handleCloseAddDialog}
+        setRows={setRows}
+        setRowModesModel={setRowModesModel}
+        state={state}
+      />
     </GridToolbarContainer>
   );
 }
@@ -83,7 +108,7 @@ export default function ParticipantDetails({ state, dispatch }) {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
     state.persons = state.persons.map((row) =>
-      row.id === newRow.id ? updatedRow : row
+      row.id === newRow.id ? newRow : row
     );
     return updatedRow;
   };
@@ -149,17 +174,20 @@ export default function ParticipantDetails({ state, dispatch }) {
       },
     },
     {
-      field: "isAuthorisedPerson",
+      field: "authorisedPerson",
       headerName: "is Authorized Person?",
       width: 80,
       sortable: false,
       editable: true,
       type: "boolean",
-      valueGetter: (value, row) =>
-        row.isAuthorisedPerson ? row.isAuthorisedPerson : false,
+      valueGetter: (value, row) => {
+        console.log("authorisedPerson: " + value);
+        console.log(row);
+        return row.authorisedPerson ? row.authorisedPerson : false;
+      },
       valueSetter: (value, row) => {
-        var isAuthorisedPerson = value ? value : false;
-        return { ...row, isAuthorisedPerson: isAuthorisedPerson };
+        var authorisedPerson = value ? value : false;
+        return { ...row, authorisedPerson: authorisedPerson };
       },
     },
     { field: "name", headerName: "Name", width: 180, editable: true },
@@ -197,6 +225,11 @@ export default function ParticipantDetails({ state, dispatch }) {
       headerName: "DIN/DPIN",
       width: 120,
       editable: true,
+      valueGetter: (value, row) => (row.dinDpin !== null ? row.dinDpin : ""),
+      valueSetter: (value, row) => {
+        var dinDpin = value ? value : "";
+        return { ...row, dinDpin: dinDpin };
+      },
     },
     {
       field: "contactNumber",
@@ -209,6 +242,11 @@ export default function ParticipantDetails({ state, dispatch }) {
       headerName: "Email",
       width: 180,
       editable: true,
+      valueGetter: (value, row) => (row.email !== null ? row.email : ""),
+      valueSetter: (value, row) => {
+        var email = value ? value : "";
+        return { ...row, email: email };
+      },
     },
     {
       field: "addressLine1",
@@ -263,7 +301,7 @@ export default function ParticipantDetails({ state, dispatch }) {
       },
     },
     {
-      field: "address.pinCode",
+      field: "pinCode",
       headerName: "Pin Code",
       width: 120,
       editable: true,
@@ -311,6 +349,9 @@ export default function ParticipantDetails({ state, dispatch }) {
             "& .MuiCheckbox-root": {
               color: "green",
             },
+            "& .MuiCheckbox-root.Mui-checked": {
+              color: "green",
+            },
           }}
           rows={rows}
           columns={columns}
@@ -323,7 +364,11 @@ export default function ParticipantDetails({ state, dispatch }) {
             toolbar: EditToolbar,
           }}
           slotProps={{
-            toolbar: { setRows, setRowModesModel, state },
+            toolbar: {
+              setRows,
+              setRowModesModel,
+              state,
+            },
           }}
         />
       </Box>

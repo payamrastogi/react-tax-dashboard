@@ -63,7 +63,6 @@ const FileUploadDialog = ({ open, handleClose, onUpload }) => {
             onChange={(e) => setFileName(e.target.value)}
             fullWidth
             margin="normal"
-            variant="filled"
           />
           <Autocomplete
             multiple
@@ -74,18 +73,13 @@ const FileUploadDialog = ({ open, handleClose, onUpload }) => {
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Box mb="5px" mt="2px">
-                  <Chip
-                    variant="filled"
-                    label={option}
-                    {...getTagProps({ index })}
-                  />
+                  <Chip label={option} {...getTagProps({ index })} />
                 </Box>
               ))
             }
             renderInput={(params) => (
               <TextField
                 {...params}
-                variant="filled"
                 color="secondary"
                 label="Tags"
                 placeholder="Add a tag"

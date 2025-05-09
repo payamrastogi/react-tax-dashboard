@@ -13,19 +13,15 @@ import {
   GridActionsCellItem,
   GridRowEditStopReasons,
 } from "@mui/x-data-grid";
-import Accordion from "@mui/material/Accordion";
-import AccordionSummary from "@mui/material/AccordionSummary";
-import AccordionDetails from "@mui/material/AccordionDetails";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 function EditToolbar(props) {
   const { setRows, setRowModesModel, state } = props;
 
   const handleClick = () => {
-    const id = state.businessAddresses.length + 1;
+    const id = state.addresses.length + 1;
     setRows((oldRows) => [...oldRows, { id, addressLine1: "", isNew: true }]);
-    state.businessAddresses = [
-      ...state.businessAddresses,
+    state.addresses = [
+      ...state.addresses,
       { id, addressLine1: "", isNew: true },
     ];
     setRowModesModel((oldModel) => ({
@@ -43,8 +39,8 @@ function EditToolbar(props) {
   );
 }
 
-export default function GSTBusinessAddresses({ state, dispatch }) {
-  const [rows, setRows] = React.useState(state.businessAddresses);
+export default function GSTBusinessAddresses({ state, dispatch, setEdited }) {
+  const [rows, setRows] = React.useState(state.addresses ?? []);
   const [rowModesModel, setRowModesModel] = React.useState({});
 
   const handleRowEditStop = (params, event) => {
@@ -58,14 +54,13 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
   };
 
   const handleSaveClick = (id) => () => {
+    setEdited(true);
     setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
   };
 
   const handleDeleteClick = (id) => () => {
     setRows(rows.filter((row) => row.id !== id));
-    state.businessAddresses = state.businessAddresses.filter(
-      (row) => row.id !== id
-    );
+    state.addresses = state.addresses.filter((row) => row.id !== id);
   };
 
   const handleCancelClick = (id) => () => {
@@ -77,16 +72,14 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
     const editedRow = rows.find((row) => row.id === id);
     if (editedRow.isNew) {
       setRows(rows.filter((row) => row.id !== id));
-      state.businessAddresses = state.businessAddresses.filter(
-        (row) => row.id !== id
-      );
+      state.addresses = state.addresses.filter((row) => row.id !== id);
     }
   };
 
   const processRowUpdate = (newRow, oldRow) => {
     const updatedRow = { ...newRow, isNew: false };
     setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    state.businessAddresses = state.businessAddresses.map((row) =>
+    state.addresses = state.addresses.map((row) =>
       row.id === newRow.id ? updatedRow : row
     );
     return updatedRow;
@@ -163,13 +156,6 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
       editable: true,
     },
     {
-      field: "addressLine2",
-      headerName: "Address Line2",
-      width: 180,
-      resizable: true,
-      editable: true,
-    },
-    {
       field: "city",
       headerName: "City",
       width: 120,
@@ -200,54 +186,54 @@ export default function GSTBusinessAddresses({ state, dispatch }) {
   ];
 
   return (
-    <Accordion>
-      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        Business Addresses
-      </AccordionSummary>
-      <AccordionDetails>
-        <Box
-          sx={{
-            height: 400,
-            width: "100%",
-            "& .actions": {
-              color: "text.secondary",
-            },
-            "& .textPrimary": {
-              color: "text.primary",
-            },
-          }}
-        >
-          <DataGrid
-            sx={{
-              "& .MuiDataGrid-columnHeaderTitle": {
-                whiteSpace: "normal",
-                lineHeight: "normal",
-              },
-              "& .MuiDataGrid-columnHeader": {
-                // Forced to use important since overriding inline styles
-                height: "unset !important",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                // Forced to use important since overriding inline styles
-                maxHeight: "180px !important",
-              },
-            }}
-            rows={rows}
-            columns={columns}
-            editMode="row"
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={handleRowModesModelChange}
-            onRowEditStop={handleRowEditStop}
-            processRowUpdate={processRowUpdate}
-            slots={{
-              toolbar: EditToolbar,
-            }}
-            slotProps={{
-              toolbar: { setRows, setRowModesModel, state },
-            }}
-          />
-        </Box>
-      </AccordionDetails>
-    </Accordion>
+    <Box
+      sx={{
+        height: 400,
+        width: "100%",
+        "& .actions": {
+          color: "text.secondary",
+        },
+        "& .textPrimary": {
+          color: "text.primary",
+        },
+      }}
+    >
+      {console.log(rows)}
+      <DataGrid
+        sx={{
+          "& .MuiDataGrid-columnHeaderTitle": {
+            whiteSpace: "normal",
+            lineHeight: "normal",
+          },
+          "& .MuiDataGrid-columnHeader": {
+            // Forced to use important since overriding inline styles
+            height: "unset !important",
+          },
+          "& .MuiDataGrid-columnHeaders": {
+            // Forced to use important since overriding inline styles
+            maxHeight: "180px !important",
+          },
+          "& .MuiCheckbox-root": {
+            color: "green",
+          },
+          "& .MuiCheckbox-root.Mui-checked": {
+            color: "green",
+          },
+        }}
+        rows={rows}
+        columns={columns}
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        slots={{
+          toolbar: EditToolbar,
+        }}
+        slotProps={{
+          toolbar: { setRows, setRowModesModel, state },
+        }}
+      />
+    </Box>
   );
 }

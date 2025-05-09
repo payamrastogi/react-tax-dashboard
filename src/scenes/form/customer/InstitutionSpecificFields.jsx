@@ -5,7 +5,7 @@ import Snackbar from "@mui/material/Snackbar";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 
-const InstitutionSpecificFields = ({ state, dispatch }) => {
+const InstitutionSpecificFields = ({ state, dispatch, setEdited }) => {
   const isNonMobile = useMediaQuery("(min-width:600px)");
   const [message, setMessage] = React.useState("");
   const [openSnackbar, setOpenSnackbar] = React.useState(false);
@@ -19,6 +19,7 @@ const InstitutionSpecificFields = ({ state, dispatch }) => {
   };
 
   const handleInputChange = (event) => {
+    setEdited(true);
     const field = event.target.name;
     const value = event.target.value;
     dispatch({
@@ -54,8 +55,8 @@ const InstitutionSpecificFields = ({ state, dispatch }) => {
         }}
       >
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           label="Company/Firm Name"
           value={state.companyName}
@@ -66,14 +67,14 @@ const InstitutionSpecificFields = ({ state, dispatch }) => {
           sx={{ gridColumn: "span 2" }}
         />
         <TextField
+          color="secondary"
           fullWidth
-          variant="filled"
           type="text"
           value={state.registrationNumber}
           onChange={(e) => {
             handleInputChange(e);
           }}
-          label="Registration Number"
+          label="CIN"
           name="registrationNumber"
           sx={{ gridColumn: "span 2" }}
         />
