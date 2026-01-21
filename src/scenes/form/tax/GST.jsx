@@ -34,6 +34,7 @@ import Backdrop from "@mui/material/Backdrop";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 import GSTBusinessAddresses from "./GSTBusinessAddresses";
+import GSTReturnSection from "./GSTReturnSection";
 
 const initialState = {
   id: "",
@@ -46,6 +47,8 @@ const initialState = {
   password: "",
   isCoveredUnderAudit: false,
   businessAddresses: [],
+  // GST Returns array - each item has: returnType, period, dateOfFiling, acknowledgementNumber, remarks
+  gstReturns: [],
 };
 
 function taxReducer(state, action) {
@@ -302,7 +305,6 @@ const GST = (props) => {
                 <MenuItem value="QUARTERLY">Quarterly</MenuItem>
               </Select>
             </FormControl>
-
             <TextField
               color="secondary"
               fullWidth
@@ -371,9 +373,11 @@ const GST = (props) => {
                 />
               </RadioGroup>
             </FormControl>
+           
           </Box>
         </AccordionDetails>
       </Accordion>
+       <GSTReturnSection state={state} dispatch={dispatch} />
       <GSTBusinessAddresses state={state} dispatch={dispatch} />
       <Snackbar
         open={openSnackbar}
